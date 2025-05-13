@@ -226,7 +226,7 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
 
             // 미리보기 영역 - 개선된 애니메이션으로 변경
             LayoutBuilder(builder: (context, constraints) {
-              final maxHeight = constraints.maxWidth * 1.0; // 가로 세로 비율 1:1
+              final maxHeight = constraints.maxWidth * 1.25; // 가로 세로 비율 4:5
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
@@ -248,18 +248,24 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
             TabBar(
               controller: _tabController,
               tabs: const [
-                Tab(
-                  icon: Icon(Icons.sports_soccer),
-                  text: '경기 정보',
+                Row(
+                  children: [
+                    Icon(Icons.sports_soccer),
+                    Text('경기 정보'),
+                  ],
                 ),
-                Tab(
-                  icon: Icon(Icons.calendar_today),
-                  text: '세부 정보',
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today),
+                    Text('세부 정보'),
+                  ],
                 ),
-                Tab(
-                  icon: Icon(Icons.palette),
-                  text: '디자인',
-                ),
+                Row(children: [
+                  Icon(
+                    Icons.pallet,
+                  ),
+                  Text('디자인'),
+                ]),
               ],
               labelColor: AppColors.k5LeagueBlue,
               unselectedLabelColor: Colors.grey,
