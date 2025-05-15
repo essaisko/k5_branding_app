@@ -5,8 +5,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:k5_branding_app/core/theme/app_theme.dart';
 import 'package:k5_branding_app/data/repositories/match_repository_impl.dart';
 import 'package:k5_branding_app/data/repositories/team_repository_impl.dart';
-import 'package:k5_branding_app/domain/repositories/match_repository.dart';
-import 'package:k5_branding_app/domain/repositories/team_repository.dart';
 import 'package:k5_branding_app/presentation/navigation/app_router.dart';
 import 'package:k5_branding_app/presentation/navigation/routes.dart';
 import 'package:k5_branding_app/core/constants/asset_paths.dart';
@@ -23,7 +21,7 @@ void main() async {
 
   // SharedPreferences 초기화
   final prefs = await SharedPreferences.getInstance();
-  
+
   // AppDatabase 초기화
   final database = await AppDatabase.initialize();
 

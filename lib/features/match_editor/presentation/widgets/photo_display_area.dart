@@ -16,7 +16,11 @@ import 'dart:io';
 /// This is the visual representation of the match data that
 /// will be captured as an image.
 class PhotoDisplayArea extends ConsumerWidget {
-  const PhotoDisplayArea({super.key});
+  final bool isCaptureMode;
+  // 캡처용 정적 키 추가
+  static final GlobalKey previewDialogKey = GlobalKey();
+
+  const PhotoDisplayArea({super.key, this.isCaptureMode = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,53 +28,64 @@ class PhotoDisplayArea extends ConsumerWidget {
 
     // Build proper frame for preview area
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: isCaptureMode ? EdgeInsets.zero : const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            spreadRadius: 1,
-            offset: const Offset(0, 5),
-          ),
-        ],
-        border: Border.all(
-          color: AppColors.k5LeagueBlue.withOpacity(0.5),
-          width: 2,
-        ),
+        borderRadius:
+            isCaptureMode ? BorderRadius.zero : BorderRadius.circular(12),
+        boxShadow: isCaptureMode
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+        border: isCaptureMode
+            ? null
+            : Border.all(
+                color: AppColors.k5LeagueBlue.withOpacity(0.5),
+                width: 2,
+              ),
       ),
       // 인스타그램 세로형 비율로 변경 (1080x1350 = 4:5)
       child: GestureDetector(
-        onTap: () => _showFullScreenPreview(context, ref, selectedTemplate),
+        onTap: isCaptureMode
+            ? null
+            : () => _showFullScreenPreview(context, ref, selectedTemplate),
         child: AspectRatio(
-          aspectRatio: 4 / 5,
+          // 정확히 1080:1350 = 0.8 비율 적용
+          aspectRatio: 1080 / 1350,
           child: Stack(
             children: [
               // Main content
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: isCaptureMode
+                    ? BorderRadius.zero
+                    : BorderRadius.circular(10),
                 child: _buildTemplateContent(context, ref, selectedTemplate),
               ),
 
               // 확대 아이콘 표시
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Icon(
-                    Icons.zoom_in,
-                    color: Colors.white,
-                    size: 16,
+              if (!isCaptureMode)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Icon(
+                      Icons.zoom_in,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -86,22 +101,41 @@ class PhotoDisplayArea extends ConsumerWidget {
       builder: (context) => Dialog.fullscreen(
         child: Stack(
           children: [
-            // 템플릿 내용
-            GestureDetector(
-              // 다시 클릭하면 닫히도록 설정
-              onTap: () => Navigator.of(context).pop(),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width,
-                    maxHeight: MediaQuery.of(context).size.height * 0.9,
-                  ),
-                  child: AspectRatio(
-                    aspectRatio: 4 / 5,
-                    child:
-                        _buildTemplateContent(context, ref, selectedTemplate),
-                  ),
-                ),
+            // 배경 색상
+            Container(color: Colors.black),
+
+            // 템플릿 내용 - 정확히 1080x1350 크기로 표시하되, 화면에 맞게 조정
+            Center(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // 화면에 맞는 최대 크기 계산
+                  double maxWidth = constraints.maxWidth * 0.95;
+                  double maxHeight = constraints.maxHeight * 0.95;
+
+                  // 1080x1350 비율 유지하면서 최대 크기 맞추기
+                  double aspectRatio = 1080 / 1350;
+
+                  double displayWidth = maxWidth;
+                  double displayHeight = displayWidth / aspectRatio;
+
+                  if (displayHeight > maxHeight) {
+                    displayHeight = maxHeight;
+                    displayWidth = displayHeight * aspectRatio;
+                  }
+
+                  return SizedBox(
+                    width: displayWidth,
+                    height: displayHeight,
+                    child: RepaintBoundary(
+                      key: previewDialogKey,
+                      child: SizedBox(
+                        width: 1080,
+                        height: 1350,
+                        child: PhotoDisplayArea(isCaptureMode: true),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
 
@@ -586,45 +620,17 @@ class PhotoDisplayArea extends ConsumerWidget {
                             ],
                           ),
 
-                          // 득점자 목록 - 더 많은 공간 확보
-                          Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // 홈팀 득점자 목록 (왼쪽)
-                                Expanded(
-                                  child: _buildCompactScorersList(
-                                    teamName: homeTeamName,
-                                    isHomeTeam: true,
-                                    scorers: match.scorers
-                                        .where((s) => s.isHomeTeam)
-                                        .toList(),
-                                    textColor: contrastColor,
-                                  ),
-                                ),
-
-                                // 구분선
-                                Container(
-                                  width: 1,
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  color: contrastColor.withOpacity(0.2),
-                                ),
-
-                                // 원정팀 득점자 목록 (오른쪽)
-                                Expanded(
-                                  child: _buildCompactScorersList(
-                                    teamName: awayTeamName,
-                                    isHomeTeam: false,
-                                    scorers: match.scorers
-                                        .where((s) => !s.isHomeTeam)
-                                        .toList(),
-                                    textColor: contrastColor,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          // 득점자 테이블
+                          _buildScorersTable(
+                            homeTeamName: homeTeamName,
+                            awayTeamName: awayTeamName,
+                            homeScorers: match.scorers
+                                .where((s) => s.isHomeTeam)
+                                .toList(),
+                            awayScorers: match.scorers
+                                .where((s) => !s.isHomeTeam)
+                                .toList(),
+                            textColor: contrastColor,
                           ),
                         ],
                       ),
@@ -681,95 +687,225 @@ class PhotoDisplayArea extends ConsumerWidget {
     }
   }
 
-  /// 득점자 목록 위젯 생성 - 더 컴팩트한 버전
-  Widget _buildCompactScorersList({
-    required String teamName,
-    required bool isHomeTeam,
-    required List<ScorerInfo> scorers,
+  /// 득점자 테이블 위젯 생성
+  Widget _buildScorersTable({
+    required String homeTeamName,
+    required String awayTeamName,
+    required List<ScorerInfo> homeScorers,
+    required List<ScorerInfo> awayScorers,
     required Color textColor,
   }) {
-    // 득점자가 없으면 안내 메시지 표시
-    if (scorers.isEmpty) {
-      return Center(
-        child: Text(
-          '$teamName 득점 없음',
-          style: TextStyle(
-            fontSize: 11,
-            color: textColor.withOpacity(0.6),
-            fontStyle: FontStyle.italic,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
+    // 시간 순서대로 득점자 정렬
+    final sortedHomeScorers = List<ScorerInfo>.from(homeScorers)
+      ..sort((a, b) =>
+          (int.tryParse(a.time) ?? 0).compareTo(int.tryParse(b.time) ?? 0));
 
-    // 득점 시간 기준으로 정렬
-    final sortedScorers = List<ScorerInfo>.from(scorers);
-    sortedScorers.sort((a, b) {
-      final aTime = int.tryParse(a.time) ?? 0;
-      final bTime = int.tryParse(b.time) ?? 0;
-      return aTime.compareTo(bTime);
-    });
+    final sortedAwayScorers = List<ScorerInfo>.from(awayScorers)
+      ..sort((a, b) =>
+          (int.tryParse(a.time) ?? 0).compareTo(int.tryParse(b.time) ?? 0));
 
-    // 득점자 목록 표시 - 팀별로 구분되고 가운데 정렬
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // 팀 이름 헤더 (가운데 정렬)
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-          decoration: BoxDecoration(
-            color: textColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            teamName,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const SizedBox(height: 5),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 홈팀 득점자 목록
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 팀 이름 헤더
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+                  decoration: BoxDecoration(
+                    color: textColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    homeTeamName,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 4),
 
-        // 득점자 목록 - 가운데 정렬
-        ...sortedScorers.map((scorer) => Padding(
-              padding: const EdgeInsets.only(bottom: 3),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
+                // 득점자 목록 (7명 이상인 경우 두 열로 분리)
+                if (sortedHomeScorers.isEmpty)
+                  Text(
+                    '득점 없음',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: textColor.withOpacity(0.6),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  )
+                else if (sortedHomeScorers.length <= 7)
+                  // 7명 이하인 경우 한 열로 표시
+                  Column(
+                    children: sortedHomeScorers
+                        .map((scorer) => _buildScorerItem(scorer, textColor))
+                        .toList(),
+                  )
+                else
+                  // 7명 초과인 경우 두 열로 분리
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 축구공 아이콘 (자책골일 경우 빨간색)
-                      Icon(
-                        Icons.sports_soccer,
-                        size: 10,
-                        color: scorer.isOwnGoal ? Colors.red : textColor,
+                      // 왼쪽 열 (첫 7명)
+                      Expanded(
+                        child: Column(
+                          children: sortedHomeScorers
+                              .take(7)
+                              .map((scorer) =>
+                                  _buildScorerItem(scorer, textColor))
+                              .toList(),
+                        ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        "${scorer.time}'  ${scorer.name}",
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          height: 1.1,
+                      // 오른쪽 열 (나머지)
+                      Expanded(
+                        child: Column(
+                          children: sortedHomeScorers
+                              .skip(7)
+                              .map((scorer) =>
+                                  _buildScorerItem(scorer, textColor))
+                              .toList(),
                         ),
                       ),
                     ],
                   ),
+              ],
+            ),
+          ),
+
+          // 구분선
+          Container(
+            width: 1,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            color: textColor.withOpacity(0.2),
+          ),
+
+          // 원정팀 득점자 목록
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 팀 이름 헤더
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+                  decoration: BoxDecoration(
+                    color: textColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    awayTeamName,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 4),
+
+                // 득점자 목록 (7명 이상인 경우 두 열로 분리)
+                if (sortedAwayScorers.isEmpty)
+                  Text(
+                    '득점 없음',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: textColor.withOpacity(0.6),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  )
+                else if (sortedAwayScorers.length <= 7)
+                  // 7명 이하인 경우 한 열로 표시
+                  Column(
+                    children: sortedAwayScorers
+                        .map((scorer) => _buildScorerItem(scorer, textColor))
+                        .toList(),
+                  )
+                else
+                  // 7명 초과인 경우 두 열로 분리
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 왼쪽 열 (첫 7명)
+                      Expanded(
+                        child: Column(
+                          children: sortedAwayScorers
+                              .take(7)
+                              .map((scorer) =>
+                                  _buildScorerItem(scorer, textColor))
+                              .toList(),
+                        ),
+                      ),
+                      // 오른쪽 열 (나머지)
+                      Expanded(
+                        child: Column(
+                          children: sortedAwayScorers
+                              .skip(7)
+                              .map((scorer) =>
+                                  _buildScorerItem(scorer, textColor))
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 득점자 개별 아이템 위젯 (재사용 가능)
+  Widget _buildScorerItem(ScorerInfo scorer, Color textColor) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 3),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 시간과 이름만 표시 (아이콘 제거)
+              Text(
+                "${scorer.time}'",
+                style: TextStyle(
+                  color: scorer.isOwnGoal ? Colors.red : textColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  height: 1.1,
                 ),
               ),
-            )),
-      ],
+              const SizedBox(width: 4),
+              Text(
+                scorer.name,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  height: 1.1,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -913,6 +1049,38 @@ class PhotoDisplayArea extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// 득점자 열 위젯 생성
+  Widget _buildScorersColumn(List<ScorerInfo> scorers, Color textColor) {
+    if (scorers.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Text(
+          '득점 없음',
+          style: TextStyle(
+            fontSize: 11,
+            color: textColor.withOpacity(0.6),
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      );
+    }
+
+    // 시간 순서대로 정렬
+    final sortedScorers = List<ScorerInfo>.from(scorers);
+    sortedScorers.sort((a, b) {
+      final aTime = int.tryParse(a.time) ?? 0;
+      final bTime = int.tryParse(b.time) ?? 0;
+      return aTime.compareTo(bTime);
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...sortedScorers.map((scorer) => _buildScorerItem(scorer, textColor)),
+      ],
     );
   }
 }
