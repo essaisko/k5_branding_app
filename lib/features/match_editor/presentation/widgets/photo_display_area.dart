@@ -99,81 +99,52 @@ class PhotoDisplayArea extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => Dialog.fullscreen(
-        child: Stack(
-          children: [
-            // 배경 색상
-            Container(color: Colors.black),
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: Container(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                // 배경 색상
+                Container(color: Colors.black),
 
-            // 템플릿 내용 - 정확히 1080x1350 크기로 표시하되, 화면에 맞게 조정
-            Center(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  // 화면에 맞는 최대 크기 계산
-                  double maxWidth = constraints.maxWidth * 0.95;
-                  double maxHeight = constraints.maxHeight * 0.95;
+                // 템플릿 내용 - 정확히 1080x1350 크기로 표시하되, 화면에 맞게 조정
+                Center(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // 화면에 맞는 최대 크기 계산
+                      double maxWidth = constraints.maxWidth * 0.95;
+                      double maxHeight = constraints.maxHeight * 0.95;
 
-                  // 1080x1350 비율 유지하면서 최대 크기 맞추기
-                  double aspectRatio = 1080 / 1350;
+                      // 1080x1350 비율 유지하면서 최대 크기 맞추기
+                      double aspectRatio = 1080 / 1350;
 
-                  double displayWidth = maxWidth;
-                  double displayHeight = displayWidth / aspectRatio;
+                      double displayWidth = maxWidth;
+                      double displayHeight = displayWidth / aspectRatio;
 
-                  if (displayHeight > maxHeight) {
-                    displayHeight = maxHeight;
-                    displayWidth = displayHeight * aspectRatio;
-                  }
+                      if (displayHeight > maxHeight) {
+                        displayHeight = maxHeight;
+                        displayWidth = displayHeight * aspectRatio;
+                      }
 
-                  return SizedBox(
-                    width: displayWidth,
-                    height: displayHeight,
-                    child: RepaintBoundary(
-                      key: previewDialogKey,
-                      child: SizedBox(
-                        width: 1080,
-                        height: 1350,
-                        child: PhotoDisplayArea(isCaptureMode: true),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // 앱바 스타일 상단 영역
-            SafeArea(
-              child: Container(
-                height: 56,
-                color: Colors.black.withOpacity(0.5),
-                child: Row(
-                  children: [
-                    // 뒤로가기 버튼
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-
-                    const Expanded(
-                      child: Text(
-                        '미리보기',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      return SizedBox(
+                        width: displayWidth,
+                        height: displayHeight,
+                        child: RepaintBoundary(
+                          key: previewDialogKey,
+                          child: SizedBox(
+                            width: 1080,
+                            height: 1350,
+                            child: PhotoDisplayArea(isCaptureMode: true),
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-
-                    // 닫기 버튼
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
+                      );
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -670,21 +641,33 @@ class PhotoDisplayArea extends ConsumerWidget {
 
   /// 팀 로고 이미지 위젯 생성
   Widget _buildTeamLogo(String logoPath) {
+    Widget imageWidget;
     if (logoPath.startsWith('http')) {
-      return Image.network(
+      imageWidget = Image.network(
         logoPath,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
+        errorBuilder: (ctx, err, _) =>
+            const Icon(Icons.sports_soccer, size: 40, color: Colors.grey),
+      );
+    } else if (logoPath.startsWith('/') || logoPath.startsWith('file://')) {
+      imageWidget = Image.file(
+        File(logoPath),
+        fit: BoxFit.cover,
         errorBuilder: (ctx, err, _) =>
             const Icon(Icons.sports_soccer, size: 40, color: Colors.grey),
       );
     } else {
-      return Image.asset(
+      imageWidget = Image.asset(
         logoPath,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
         errorBuilder: (ctx, err, _) =>
             const Icon(Icons.sports_soccer, size: 40, color: Colors.grey),
       );
     }
+
+    return ClipOval(
+      child: imageWidget,
+    );
   }
 
   /// 득점자 테이블 위젯 생성
