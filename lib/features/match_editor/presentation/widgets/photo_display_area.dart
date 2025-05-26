@@ -1,4 +1,10 @@
+import 'dart:async'; // For Future
+import 'dart:io'; // For File
+import 'dart:typed_data'; // For Uint8List
+import 'dart:ui'
+    as ui; // For ui.Image, ui.PictureRecorder, ui.Canvas, ui.ImageByteFormat, ui.TextDirection
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart'; // For RepaintBoundary, RenderBox, RenderRepaintBoundary
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:k5_branding_app/core/constants/asset_paths.dart';
 import 'package:k5_branding_app/core/theme/app_colors.dart';
@@ -9,7 +15,8 @@ import 'package:k5_branding_app/features/match_editor/providers/template_provide
 import 'package:k5_branding_app/features/match_editor/providers/theme_color_provider.dart';
 import 'package:k5_branding_app/features/match_editor/providers/design_pattern_provider.dart';
 import 'package:k5_branding_app/features/match_editor/presentation/widgets/patterns/pattern_painters.dart';
-import 'dart:io';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Widget that displays the match information visually
 ///
@@ -114,7 +121,8 @@ class PhotoDisplayArea extends ConsumerWidget {
                     builder: (context, constraints) {
                       // 화면에 맞는 최대 크기 계산
                       double maxWidth = constraints.maxWidth * 0.95;
-                      double maxHeight = constraints.maxHeight * 0.95;
+                      double maxHeight =
+                          constraints.maxHeight * 0.85; // 상단 컨트롤바 공간 확보
 
                       // 1080x1350 비율 유지하면서 최대 크기 맞추기
                       double aspectRatio = 1080 / 1350;
@@ -127,9 +135,18 @@ class PhotoDisplayArea extends ConsumerWidget {
                         displayWidth = displayHeight * aspectRatio;
                       }
 
-                      return SizedBox(
+                      return Container(
                         width: displayWidth,
                         height: displayHeight,
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
                         child: RepaintBoundary(
                           key: previewDialogKey,
                           child: SizedBox(
@@ -142,12 +159,177 @@ class PhotoDisplayArea extends ConsumerWidget {
                     },
                   ),
                 ),
+
+                // 상단 컨트롤바
+                SafeArea(
+                  child: Container(
+                    height: 56,
+                    color: Colors.black.withOpacity(0.7),
+                    child: Row(
+                      children: [
+                        // 뒤로가기 버튼
+                        IconButton(
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+
+                        // 제목
+                        const Expanded(
+                          child: Text(
+                            '이미지 미리보기',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+
+                        // 저장 버튼
+                        IconButton(
+                          icon: const Icon(Icons.save_alt, color: Colors.white),
+                          onPressed: () => _captureAndSaveImage(context, ref),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  /// 이미지 캡처 및 저장 기능
+  Future<void> _captureAndSaveImage(BuildContext context, WidgetRef ref) async {
+    try {
+      // 권한 확인
+      final permissionStatus = await PhotoManager.requestPermissionExtend();
+      if (!permissionStatus.hasAccess) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.error, color: Colors.white),
+                  SizedBox(width: 8),
+                  Expanded(child: Text('갤러리 접근 권한이 필요합니다')),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        return;
+      }
+
+      // 로딩 표시
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(child: Text('이미지 저장 중...')),
+              ],
+            ),
+            backgroundColor: AppColors.k5LeagueBlue,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+
+      // RepaintBoundary에서 이미지 캡처
+      final boundary = previewDialogKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+
+      if (boundary == null) {
+        throw Exception('캡처할 위젯을 찾을 수 없습니다');
+      }
+
+      // 렌더링 완료 대기
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // 1080x1350 크기로 정확히 캡처
+      final ui.Image image = await boundary.toImage(pixelRatio: 1.0);
+
+      // PNG 데이터로 변환
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) {
+        throw Exception('이미지 데이터 생성 실패');
+      }
+
+      final pngBytes = byteData.buffer.asUint8List();
+
+      // 파일명 생성
+      final now = DateTime.now();
+      final timestamp =
+          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
+          '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
+      final filename = 'K5League_Match_$timestamp.png';
+
+      // 갤러리에 저장
+      final result = await PhotoManager.editor.saveImage(
+        pngBytes,
+        title: 'K5 League 매치',
+        desc: '경기 결과 이미지 (1080x1350)',
+        filename: filename,
+      );
+
+      if (context.mounted) {
+        // 기존 스낵바 제거
+        ScaffoldMessenger.of(context).clearSnackBars();
+
+        if (result != null) {
+          // 성공 다이얼로그 표시
+          _showSuccessDialog(context, filename);
+        } else {
+          throw Exception('이미지 저장에 실패했습니다');
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        // 기존 스낵바 제거
+        ScaffoldMessenger.of(context).clearSnackBars();
+
+        // 오류 메시지
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error, color: Colors.white),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text('저장 중 오류가 발생했습니다: ${e.toString()}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: '재시도',
+              textColor: Colors.white,
+              onPressed: () => _captureAndSaveImage(context, ref),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   /// Builds content based on selected template
@@ -1035,35 +1217,306 @@ class PhotoDisplayArea extends ConsumerWidget {
     );
   }
 
-  /// 득점자 열 위젯 생성
-  Widget _buildScorersColumn(List<ScorerInfo> scorers, Color textColor) {
-    if (scorers.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Text(
-          '득점 없음',
-          style: TextStyle(
-            fontSize: 11,
-            color: textColor.withOpacity(0.6),
-            fontStyle: FontStyle.italic,
-          ),
+  /// 저장 성공 다이얼로그 표시
+  void _showSuccessDialog(BuildContext context, String filename) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
         ),
-      );
-    }
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 성공 아이콘
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.green[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check_circle,
+                color: Colors.green[600],
+                size: 50,
+              ),
+            ),
+            const SizedBox(height: 20),
 
-    // 시간 순서대로 정렬
-    final sortedScorers = List<ScorerInfo>.from(scorers);
-    sortedScorers.sort((a, b) {
-      final aTime = int.tryParse(a.time) ?? 0;
-      final bTime = int.tryParse(b.time) ?? 0;
-      return aTime.compareTo(bTime);
-    });
+            // 제목
+            Text(
+              '저장 완료!',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ...sortedScorers.map((scorer) => _buildScorerItem(scorer, textColor)),
-      ],
+            // 설명
+            Text(
+              '이미지가 갤러리에 성공적으로 저장되었습니다',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+
+            // 파일 정보
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.image, color: Colors.grey[600], size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '크기: 1080 × 1350',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.folder, color: Colors.grey[600], size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          filename,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 버튼들
+            Row(
+              children: [
+                // 확인 버튼
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // 성공 다이얼로그 닫기
+                      Navigator.of(context).pop(); // 미리보기 다이얼로그 닫기
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: Text(
+                      '확인',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // 갤러리 보기 버튼
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop(); // 성공 다이얼로그 닫기
+                      Navigator.of(context).pop(); // 미리보기 다이얼로그 닫기
+                      await _openGallery(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.k5LeagueBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.photo_library, size: 18),
+                        const SizedBox(width: 6),
+                        Text(
+                          '갤러리 보기',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  /// 갤러리 열기 기능
+  Future<void> _openGallery(BuildContext context) async {
+    try {
+      if (Platform.isAndroid) {
+        // Android에서 갤러리 앱 열기
+        bool opened = false;
+
+        // 방법 1: 기본 갤러리 앱 열기 (가장 안정적)
+        try {
+          final Uri galleryUri =
+              Uri.parse('content://media/external/images/media');
+          opened =
+              await launchUrl(galleryUri, mode: LaunchMode.externalApplication);
+        } catch (e) {
+          print('갤러리 URI 열기 실패: $e');
+        }
+
+        // 방법 2: Google Photos 앱 열기
+        if (!opened) {
+          try {
+            final Uri photosUri =
+                Uri.parse('market://details?id=com.google.android.apps.photos');
+            opened = await launchUrl(photosUri,
+                mode: LaunchMode.externalApplication);
+          } catch (e) {
+            print('Google Photos 열기 실패: $e');
+          }
+        }
+
+        // 방법 3: 일반적인 이미지 뷰어 열기
+        if (!opened) {
+          try {
+            final Uri imageUri =
+                Uri.parse('content://media/external/images/media');
+            opened =
+                await launchUrl(imageUri, mode: LaunchMode.externalApplication);
+          } catch (e) {
+            print('이미지 뷰어 열기 실패: $e');
+          }
+        }
+
+        if (!opened) {
+          // 갤러리를 열 수 없는 경우 안내 메시지
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.photo_library, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text('갤러리 앱을 직접 실행해주세요'),
+                    ),
+                  ],
+                ),
+                backgroundColor: AppColors.k5LeagueBlue,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      } else if (Platform.isIOS) {
+        // iOS에서 Photos 앱 열기
+        try {
+          final Uri photosUri = Uri.parse('photos-redirect://');
+          if (await canLaunchUrl(photosUri)) {
+            await launchUrl(photosUri, mode: LaunchMode.externalApplication);
+          } else {
+            // iOS Photos 앱을 직접 열 수 없는 경우 안내 메시지
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.photo_library, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text('사진 앱에서 저장된 이미지를 확인하세요'),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: AppColors.k5LeagueBlue,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          print('iOS Photos 앱 열기 실패: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.photo_library, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text('사진 앱에서 저장된 이미지를 확인하세요'),
+                    ),
+                  ],
+                ),
+                backgroundColor: AppColors.k5LeagueBlue,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print('갤러리 열기 최종 실패: $e');
+      // 갤러리 열기 실패 시 안내 메시지
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('갤러리를 자동으로 열 수 없습니다.\n직접 갤러리 앱을 실행해주세요'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.orange[700],
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
   }
 }

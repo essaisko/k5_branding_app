@@ -48,5 +48,20 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- 갤러리 앱 열기를 위한 쿼리 -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:mimeType="image/*"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent>
+        <!-- Google Photos 앱 -->
+        <package android:name="com.google.android.apps.photos"/>
+        <!-- 기본 갤러리 앱들 -->
+        <package android:name="com.android.gallery3d"/>
+        <package android:name="com.sec.android.gallery3d"/>
+        <package android:name="com.miui.gallery"/>
     </queries>
 </manifest>

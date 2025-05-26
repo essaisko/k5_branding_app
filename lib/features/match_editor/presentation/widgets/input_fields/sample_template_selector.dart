@@ -263,14 +263,39 @@ class SampleTemplateSelector extends ConsumerWidget {
           .setPatternOpacity(config.patternOpacity);
     }
 
-    // 사용자 피드백
-    ScaffoldMessenger.of(ref.context).showSnackBar(
-      SnackBar(
-        content: Text('${config.displayName} 템플릿이 적용되었습니다'),
-        duration: const Duration(seconds: 2),
-        backgroundColor: config.primaryColor,
-      ),
-    );
+    // 기존 스낵바 모두 제거 후 새로운 스낵바 표시
+    final scaffoldMessenger = ScaffoldMessenger.of(ref.context);
+    scaffoldMessenger.clearSnackBars();
+
+    // 짧은 지연 후 새로운 스낵바 표시
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (ref.context.mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('${config.displayName} 템플릿이 적용되었습니다'),
+                ),
+              ],
+            ),
+            duration: const Duration(seconds: 2),
+            backgroundColor: config.primaryColor,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      }
+    });
   }
 
   /// 문자열을 DesignPatternType으로 변환
