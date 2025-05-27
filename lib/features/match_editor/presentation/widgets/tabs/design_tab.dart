@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/design_pattern_section.dart';
 import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/team_color_section.dart';
+import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/sample_template_selector.dart';
 
 class DesignTab extends StatelessWidget {
   const DesignTab({super.key});
@@ -27,6 +28,14 @@ class DesignTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: const [
+            // 샘플 템플릿 선택 섹션 (최상단에 추가)
+            SampleTemplateSelector(),
+            SizedBox(height: 24),
+
+            // 구분선
+            Divider(color: Colors.grey, thickness: 0.5),
+            SizedBox(height: 16),
+
             // 팀 색상 설정 섹션
             TeamColorSection(),
             SizedBox(height: 16),

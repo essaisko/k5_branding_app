@@ -7,10 +7,9 @@ import 'package:k5_branding_app/features/match_editor/providers/match_editor_pro
 /// 리그 이름 샘플 데이터 프로바이더
 final leagueNameSamplesProvider = Provider<List<String>>((ref) {
   return [
-    'K5 LEAGUE',
-    'K LEAGUE',
-    'K3 LEAGUE',
-    'NATIONAL LEAGUE',
+    '2025 K5 경상남도 디비전 리그',
+    '2025 K5 부산광역시 디비전 리그',
+    '친선경기',
   ];
 });
 
