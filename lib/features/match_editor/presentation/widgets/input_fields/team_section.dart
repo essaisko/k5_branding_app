@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/constants/asset_paths.dart';
-import 'package:k5_branding_app/core/theme/app_typography.dart';
-import 'package:k5_branding_app/core/utils/color_utils.dart';
-import 'package:k5_branding_app/domain/entities/team.dart';
-import 'package:k5_branding_app/features/match_editor/providers/providers.dart';
+import 'package:chukshin_app/core/constants/asset_paths.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/core/utils/color_utils.dart';
+import 'package:chukshin_app/domain/entities/team.dart';
+import 'package:chukshin_app/features/match_editor/providers/providers.dart';
 import 'dart:developer' as dev;
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/shared/compact_logo_button.dart';
-import 'package:k5_branding_app/features/match_editor/providers/sample_data_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/team_details_provider.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/shared/compact_logo_button.dart';
+import 'package:chukshin_app/features/match_editor/providers/sample_data_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/team_details_provider.dart';
 
 /// Team section input widget
 ///

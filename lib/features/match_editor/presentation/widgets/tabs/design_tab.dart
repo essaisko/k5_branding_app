@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/design_pattern_section.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/team_color_section.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/sample_template_selector.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/input_fields/design_pattern_section.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/input_fields/team_color_section.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/input_fields/sample_template_selector.dart';
 
 class DesignTab extends StatelessWidget {
   const DesignTab({super.key});

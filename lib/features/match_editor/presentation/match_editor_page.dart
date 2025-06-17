@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/design_pattern_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/theme_color_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/sample_data_provider.dart';
-import 'package:k5_branding_app/domain/entities/match.dart' as domain_match;
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/tabs/match_info_tab.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/tabs/details_tab.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/tabs/design_tab.dart';
-import 'package:k5_branding_app/features/match_editor/providers/template_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/design_pattern_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/theme_color_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/sample_data_provider.dart';
+import 'package:chukshin_app/domain/entities/match.dart' as domain_match;
+import 'package:chukshin_app/features/match_editor/presentation/widgets/tabs/match_info_tab.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/tabs/details_tab.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/tabs/design_tab.dart';
+import 'package:chukshin_app/features/match_editor/providers/template_provider.dart';
 
 class MatchEditorPage extends ConsumerWidget {
   const MatchEditorPage({super.key});

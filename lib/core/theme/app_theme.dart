@@ -99,6 +99,12 @@ class AppTheme {
         titleTextStyle: AppTypography.heading3.copyWith(
           color: AppColors.textOnPrimary,
         ),
+        iconTheme: IconThemeData(
+          color: AppColors.textOnPrimary,
+        ),
+        actionsIconTheme: IconThemeData(
+          color: AppColors.textOnPrimary,
+        ),
       ),
 
       // Visual density for all widgets

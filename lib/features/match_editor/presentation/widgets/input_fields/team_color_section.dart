@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/theme/app_typography.dart';
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/theme_color_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/design_pattern_provider.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/theme_color_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/design_pattern_provider.dart';
 
 /// 팀 컬러 선택 섹션 - 컴팩트 버전
 ///

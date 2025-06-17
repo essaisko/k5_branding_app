@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/constants/asset_paths.dart';
-import 'package:k5_branding_app/domain/entities/team.dart';
+import 'package:chukshin_app/core/constants/asset_paths.dart';
+import 'package:chukshin_app/domain/entities/team.dart';
 
 // 샘플 팀 데이터 프로바이더 선언
 final sampleTeamsProvider = Provider<List<Team>>((ref) {

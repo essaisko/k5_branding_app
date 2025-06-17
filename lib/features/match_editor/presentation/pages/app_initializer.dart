@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/data/repositories/match_repository_impl.dart';
-import 'package:k5_branding_app/data/repositories/team_repository_impl.dart';
-import 'package:k5_branding_app/domain/repositories/match_repository.dart';
-import 'package:k5_branding_app/domain/repositories/team_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:chukshin_app/data/repositories/match_repository_impl.dart';
+import 'package:chukshin_app/data/repositories/team_repository_impl.dart';
+import 'package:chukshin_app/domain/repositories/match_repository.dart';
+import 'package:chukshin_app/domain/repositories/team_repository.dart';
 
 /// 앱 초기화 프로바이더
 ///

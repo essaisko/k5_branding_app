@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/theme/app_colors.dart';
-import 'package:k5_branding_app/features/match_editor/providers/template_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/theme_color_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/design_pattern_provider.dart';
+import 'package:chukshin_app/core/theme/app_colors.dart';
+import 'package:chukshin_app/features/match_editor/providers/template_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/theme_color_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/design_pattern_provider.dart';
 
 /// Sample template selector widget
 /// Allows users to choose from predefined template styles
@@ -23,7 +23,7 @@ class SampleTemplateSelector extends ConsumerWidget {
           children: [
             Icon(
               Icons.palette,
-              color: AppColors.k5LeagueBlue,
+              color: AppColors.primary,
               size: 20,
             ),
             const SizedBox(width: 8),

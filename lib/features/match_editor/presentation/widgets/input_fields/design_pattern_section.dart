@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/features/match_editor/providers/design_pattern_provider.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/features/match_editor/providers/design_pattern_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 

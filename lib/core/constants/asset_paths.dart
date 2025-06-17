@@ -13,11 +13,11 @@ class AssetPaths {
   // Team logos - 실제 존재하는 파일만 포함
   static const String defaultCrest = '$_imageBase/default_crest.png';
 
+  // App icons
+  static const String chukshinIcon = '$_imageBase/chukshin_icon.png';
+
   /// 팀 로고 맵 - 안전하게 실제 존재하는 파일만 포함
   static const Map<String, String> teamLogos = {
-    'daegu_fc': '$_imageBase/daegu_fc_crest.png',
-    'fc_seoul': '$_imageBase/fc_seoul_crest.png',
-    'jeonbuk_hyundai': '$_imageBase/jeonbuk_hyundai_crest.png',
     'yangsan_united': '$_imageBase/yangsan_united_logo.png',
     'pluzz_fc': '$_imageBase/pluzz_fc_logo.png',
     'jinjudaesung': '$_imageBase/jinjudaesung_logo.png',
@@ -25,6 +25,9 @@ class AssetPaths {
     'one_touch_fc': '$_imageBase/one_touch_fc_logo.png',
     // 나머지 팀 로고는 파일이 추가된 후에 주석 해제
     /* 
+    'daegu_fc': '$_imageBase/daegu_fc_crest.png',
+    'fc_seoul': '$_imageBase/fc_seoul_crest.png',
+    'jeonbuk_hyundai': '$_imageBase/jeonbuk_hyundai_crest.png',
     'gangwon_fc': '$_imageBase/gangwon_fc_crest.png',
     'gimcheon_sangmu': '$_imageBase/gimcheon_sangmu_crest.png',
     'gwangju_fc': '$_imageBase/gwangju_fc_crest.png',

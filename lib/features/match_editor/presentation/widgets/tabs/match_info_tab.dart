@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/goals_section.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/team_section.dart';
-import 'package:k5_branding_app/features/match_editor/providers/template_provider.dart'; // TemplateType 사용을 위해 추가
+import 'package:chukshin_app/features/match_editor/presentation/widgets/input_fields/goals_section.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/input_fields/team_section.dart';
+import 'package:chukshin_app/features/match_editor/providers/template_provider.dart'; // TemplateType 사용을 위해 추가
 
 class MatchInfoTab extends StatelessWidget {
   final TemplateType templateType;

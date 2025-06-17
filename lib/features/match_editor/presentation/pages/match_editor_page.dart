@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/theme/app_colors.dart';
-import 'package:k5_branding_app/features/match_editor/providers/providers.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/photo_display_area.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/template_selector.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/tabs/match_info_tab.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/tabs/details_tab.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/tabs/design_tab.dart';
+import 'package:chukshin_app/core/theme/app_colors.dart';
+import 'package:chukshin_app/features/match_editor/providers/providers.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/photo_display_area.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/template_selector.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/tabs/match_info_tab.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/tabs/details_tab.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/tabs/design_tab.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io';
 import 'package:url_launcher/url_launcher.dart';
@@ -197,7 +198,7 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                 Expanded(child: Text('이미지 저장 중...')),
               ],
             ),
-            backgroundColor: AppColors.k5LeagueBlue,
+            backgroundColor: AppColors.primary,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
@@ -411,7 +412,7 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                       await _openGallery(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.k5LeagueBlue,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -498,7 +499,7 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                     ),
                   ],
                 ),
-                backgroundColor: AppColors.k5LeagueBlue,
+                backgroundColor: AppColors.primary,
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 3),
               ),
@@ -525,7 +526,7 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                       ),
                     ],
                   ),
-                  backgroundColor: AppColors.k5LeagueBlue,
+                  backgroundColor: AppColors.primary,
                   behavior: SnackBarBehavior.floating,
                   duration: const Duration(seconds: 3),
                 ),
@@ -546,7 +547,7 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                     ),
                   ],
                 ),
-                backgroundColor: AppColors.k5LeagueBlue,
+                backgroundColor: AppColors.primary,
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 3),
               ),
@@ -648,14 +649,14 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                   vertical: 6, // 높이 줄임
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.k5LeagueBlue.withOpacity(0.1),
+                  color: AppColors.primary.withOpacity(0.1),
                   border: Border(
                     top: BorderSide(
-                      color: AppColors.k5LeagueBlue.withOpacity(0.2),
+                      color: AppColors.primary.withOpacity(0.2),
                       width: 1,
                     ),
                     bottom: BorderSide(
-                      color: AppColors.k5LeagueBlue.withOpacity(0.2),
+                      color: AppColors.primary.withOpacity(0.2),
                       width: 1,
                     ),
                   ),
@@ -666,7 +667,7 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                       '미리보기',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: AppColors.k5LeagueBlue,
+                        color: AppColors.primary,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -674,13 +675,13 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                       _isPreviewExpanded
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
-                      color: AppColors.k5LeagueBlue,
+                      color: AppColors.primary,
                     ),
                     const Spacer(),
                     Text(
                       _isPreviewExpanded ? '접기' : '펼치기',
                       style: TextStyle(
-                        color: AppColors.k5LeagueBlue,
+                        color: AppColors.primary,
                         fontSize: 12,
                       ),
                     ),
@@ -750,9 +751,9 @@ class _MatchEditorPageState extends ConsumerState<MatchEditorPage>
                   ],
                 ),
               ],
-              labelColor: AppColors.k5LeagueBlue, // 이전 스타일 유지
+              labelColor: AppColors.primary, // 이전 스타일 유지
               unselectedLabelColor: Colors.grey, // 이전 스타일 유지
-              indicatorColor: AppColors.k5LeagueBlue, // 이전 스타일 유지
+              indicatorColor: AppColors.primary, // 이전 스타일 유지
             ),
 
             // 탭바 추가 -> Expanded(child: TabBarView(...))

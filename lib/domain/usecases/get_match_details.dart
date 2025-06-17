@@ -1,5 +1,5 @@
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/domain/repositories/match_repository.dart';
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/domain/repositories/match_repository.dart';
 
 /// GetMatchDetails use case following the Clean Architecture pattern
 ///

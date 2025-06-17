@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/features/match_editor/providers/goal_scorers_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/focus_manager_provider.dart';
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/features/match_editor/providers/goal_scorers_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/focus_manager_provider.dart';
 import 'dart:developer' as dev;
 import 'package:uuid/uuid.dart';
 

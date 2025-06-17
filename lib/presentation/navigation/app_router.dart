@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/pages/match_editor_page.dart';
-import 'package:k5_branding_app/presentation/navigation/routes.dart';
+import 'package:chukshin_app/features/match_editor/presentation/pages/match_editor_page.dart';
+import 'package:chukshin_app/features/authentication/presentation/pages/auth_gate.dart';
+import 'package:chukshin_app/features/authentication/presentation/pages/opening_page.dart';
+import 'package:chukshin_app/features/authentication/presentation/pages/profile_setup_page.dart';
+import 'package:chukshin_app/features/authentication/presentation/pages/firebase_setup_guide.dart';
+import 'package:chukshin_app/features/authentication/presentation/pages/debug_page.dart';
+import 'package:chukshin_app/presentation/pages/main_page.dart';
+import 'package:chukshin_app/presentation/navigation/routes.dart';
 
-/// 앱 라우터 설정
+/// 축신 앱 라우터 설정
 class AppRouter {
   // Private constructor to prevent instantiation
   AppRouter._();
@@ -10,8 +16,23 @@ class AppRouter {
   /// 중앙화된 라우트 정의
   static Map<String, WidgetBuilder> get routes {
     return {
-      AppRoutes.home: (context) => const MatchEditorPage(),
-      AppRoutes.editor: (context) => const MatchEditorPage(),
+      // 개발자 도구
+      AppRoutes.debug: (context) => const DebugPage(),
+
+      // 인증 관련 라우트
+      AppRoutes.authGate: (context) => const AuthGate(),
+      AppRoutes.opening: (context) => const OpeningPage(),
+      // 회원가입 페이지 제거 - 휴대전화번호 인증에서는 프로필 설정으로 대체
+      AppRoutes.profileSetup: (context) => const ProfileSetupPage(),
+      AppRoutes.firebaseSetup: (context) => const FirebaseSetupGuide(),
+
+      // 메인 앱 라우트 - 바텀 네비게이션이 있는 메인 페이지
+      AppRoutes.home: (context) => const MainPage(),
+      AppRoutes.main: (context) => const MainPage(),
+
+      // 템플릿 편집기 (기능 메뉴로 이동)
+      AppRoutes.templateEditor: (context) => const MatchEditorPage(),
+
       // Add other routes as they are implemented
     };
   }
@@ -19,31 +40,30 @@ class AppRouter {
   /// 알 수 없는 라우트 처리
   static Route<dynamic> unknownRouteHandler(RouteSettings settings) {
     return MaterialPageRoute(
-      builder:
-          (context) => Scaffold(
-            appBar: AppBar(title: const Text('페이지를 찾을 수 없습니다')),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  const Text(
-                    '요청한 페이지를 찾을 수 없습니다',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 8),
-                  Text('경로: ${settings.name}'),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed:
-                        () => Navigator.of(context).pushNamed(AppRoutes.home),
-                    child: const Text('홈으로 돌아가기'),
-                  ),
-                ],
+      builder: (context) => Scaffold(
+        appBar: AppBar(title: const Text('페이지를 찾을 수 없습니다')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              const Text(
+                '요청한 페이지를 찾을 수 없습니다',
+                style: TextStyle(fontSize: 18),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text('경로: ${settings.name}'),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.home),
+                child: const Text('홈으로 돌아가기'),
+              ),
+            ],
           ),
+        ),
+      ),
     );
   }
 

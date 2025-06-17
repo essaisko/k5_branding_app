@@ -1,0 +1,28 @@
+{
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter":{
+    "platforms":{
+      "android":{
+        "default":{
+          "projectId":"footballbranding-9d2f8",
+          "appId":"1:818212556234:android:21d7a212af905540bbd333",
+          "fileOutput":"android/app/google-services.json"
+        }
+      },
+      "dart":{
+        "lib/firebase_options.dart":{
+          "projectId":"footballbranding-9d2f8",
+          "configurations":{
+            "android":"1:818212556234:android:21d7a212af905540bbd333",
+            "ios":"1:818212556234:ios:5826bf55c1fbf7d8bbd333",
+            "macos":"1:818212556234:ios:5826bf55c1fbf7d8bbd333",
+            "web":"1:818212556234:web:77137586a506248dbbd333",
+            "windows":"1:818212556234:web:213ee77b57301d73bbd333"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:k5_branding_app/domain/entities/team.dart';
+import 'package:chukshin_app/domain/entities/team.dart';
 
 /// 팀 정보 저장소 인터페이스
 ///

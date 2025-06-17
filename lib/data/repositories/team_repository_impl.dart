@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/constants/asset_paths.dart';
-import 'package:k5_branding_app/core/utils/color_utils.dart';
-import 'package:k5_branding_app/domain/entities/team.dart';
-import 'package:k5_branding_app/domain/repositories/team_repository.dart';
+import 'package:chukshin_app/core/constants/asset_paths.dart';
+import 'package:chukshin_app/core/utils/color_utils.dart';
+import 'package:chukshin_app/domain/entities/team.dart';
+import 'package:chukshin_app/domain/repositories/team_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:uuid/uuid.dart';

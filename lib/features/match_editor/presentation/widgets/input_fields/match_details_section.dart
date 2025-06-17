@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/theme/app_typography.dart';
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/league_name_section.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/input_fields/league_name_section.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 /// 경기 세부 정보 입력 섹션 - 컴팩트 버전

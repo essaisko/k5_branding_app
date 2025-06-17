@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:k5_branding_app/core/constants/asset_paths.dart';
-import 'package:k5_branding_app/core/theme/app_typography.dart';
-import 'package:k5_branding_app/features/match_editor/providers/sample_data_provider.dart';
+import 'package:chukshin_app/core/constants/asset_paths.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/features/match_editor/providers/sample_data_provider.dart';
 import 'dart:developer' as dev;
 import 'dart:io';
 

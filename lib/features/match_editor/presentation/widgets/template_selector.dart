@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/theme/app_colors.dart';
-import 'package:k5_branding_app/core/theme/app_typography.dart';
-import 'package:k5_branding_app/features/match_editor/providers/template_provider.dart';
+import 'package:chukshin_app/core/theme/app_colors.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/features/match_editor/providers/template_provider.dart';
 
 /// Template selector widget to switch between different template types
 ///
@@ -37,21 +37,19 @@ class TemplateSelector extends ConsumerWidget {
               height: 36, // 상하로 짧은 고정 높이
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children:
-                    TemplateType.values.map((template) {
-                      final isSelected = template == selectedTemplate;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: _buildCompactTemplateButton(
-                          context,
-                          template,
-                          isSelected,
-                          () =>
-                              ref.read(templateProvider.notifier).state =
-                                  template,
-                        ),
-                      );
-                    }).toList(),
+                children: TemplateType.values.map((template) {
+                  final isSelected = template == selectedTemplate;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: _buildCompactTemplateButton(
+                      context,
+                      template,
+                      isSelected,
+                      () =>
+                          ref.read(templateProvider.notifier).state = template,
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ),

@@ -6,15 +6,15 @@ import 'dart:ui'
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'; // For RepaintBoundary, RenderBox, RenderRepaintBoundary
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/constants/asset_paths.dart';
-import 'package:k5_branding_app/core/theme/app_colors.dart';
-import 'package:k5_branding_app/core/theme/app_typography.dart';
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/template_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/theme_color_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/design_pattern_provider.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/patterns/pattern_painters.dart';
+import 'package:chukshin_app/core/constants/asset_paths.dart';
+import 'package:chukshin_app/core/theme/app_colors.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/template_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/theme_color_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/design_pattern_provider.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/patterns/pattern_painters.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -53,7 +53,7 @@ class PhotoDisplayArea extends ConsumerWidget {
         border: isCaptureMode
             ? null
             : Border.all(
-                color: AppColors.k5LeagueBlue.withOpacity(0.5),
+                color: AppColors.primary.withOpacity(0.5),
                 width: 2,
               ),
       ),
@@ -246,7 +246,7 @@ class PhotoDisplayArea extends ConsumerWidget {
                 Expanded(child: Text('이미지 저장 중...')),
               ],
             ),
-            backgroundColor: AppColors.k5LeagueBlue,
+            backgroundColor: AppColors.primary,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
@@ -1353,7 +1353,7 @@ class PhotoDisplayArea extends ConsumerWidget {
                       await _openGallery(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.k5LeagueBlue,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -1440,7 +1440,7 @@ class PhotoDisplayArea extends ConsumerWidget {
                     ),
                   ],
                 ),
-                backgroundColor: AppColors.k5LeagueBlue,
+                backgroundColor: AppColors.primary,
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 3),
               ),
@@ -1467,7 +1467,7 @@ class PhotoDisplayArea extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  backgroundColor: AppColors.k5LeagueBlue,
+                  backgroundColor: AppColors.primary,
                   behavior: SnackBarBehavior.floating,
                   duration: const Duration(seconds: 3),
                 ),
@@ -1488,7 +1488,7 @@ class PhotoDisplayArea extends ConsumerWidget {
                     ),
                   ],
                 ),
-                backgroundColor: AppColors.k5LeagueBlue,
+                backgroundColor: AppColors.primary,
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 3),
               ),

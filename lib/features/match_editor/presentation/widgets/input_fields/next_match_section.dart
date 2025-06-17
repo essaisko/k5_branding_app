@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/theme/app_typography.dart';
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart';
 
 /// Next match information input section
 ///
@@ -224,13 +224,12 @@ class _NextMatchSectionState extends ConsumerState<NextMatchSection> {
   ) async {
     try {
       // 커스텀 시간 선택 UI로 대체
-      final initialTime =
-          match.matchDateTime != null
-              ? TimeOfDay(
-                hour: match.matchDateTime!.hour,
-                minute: match.matchDateTime!.minute,
-              )
-              : const TimeOfDay(hour: 19, minute: 0);
+      final initialTime = match.matchDateTime != null
+          ? TimeOfDay(
+              hour: match.matchDateTime!.hour,
+              minute: match.matchDateTime!.minute,
+            )
+          : const TimeOfDay(hour: 19, minute: 0);
 
       int selectedHour = initialTime.hour;
       int selectedMinute = initialTime.minute;
@@ -278,10 +277,9 @@ class _NextMatchSectionState extends ConsumerState<NextMatchSection> {
                                         height: 40,
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
-                                          color:
-                                              selectedHour == index
-                                                  ? Colors.blue.withOpacity(0.2)
-                                                  : Colors.transparent,
+                                          color: selectedHour == index
+                                              ? Colors.blue.withOpacity(0.2)
+                                              : Colors.transparent,
                                           borderRadius: BorderRadius.circular(
                                             8,
                                           ),
@@ -289,10 +287,9 @@ class _NextMatchSectionState extends ConsumerState<NextMatchSection> {
                                         child: Text(
                                           '$index',
                                           style: TextStyle(
-                                            fontWeight:
-                                                selectedHour == index
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal,
+                                            fontWeight: selectedHour == index
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
                                           ),
                                         ),
                                       ),
@@ -324,10 +321,9 @@ class _NextMatchSectionState extends ConsumerState<NextMatchSection> {
                                         height: 40,
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
-                                          color:
-                                              selectedMinute == index
-                                                  ? Colors.blue.withOpacity(0.2)
-                                                  : Colors.transparent,
+                                          color: selectedMinute == index
+                                              ? Colors.blue.withOpacity(0.2)
+                                              : Colors.transparent,
                                           borderRadius: BorderRadius.circular(
                                             8,
                                           ),
@@ -335,10 +331,9 @@ class _NextMatchSectionState extends ConsumerState<NextMatchSection> {
                                         child: Text(
                                           '$index',
                                           style: TextStyle(
-                                            fontWeight:
-                                                selectedMinute == index
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal,
+                                            fontWeight: selectedMinute == index
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
                                           ),
                                         ),
                                       ),

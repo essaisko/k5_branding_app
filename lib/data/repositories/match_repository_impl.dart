@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/domain/repositories/match_repository.dart';
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/domain/repositories/match_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter/foundation.dart';
 
 /// Repository implementation for Match entities
 ///

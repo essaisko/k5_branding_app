@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:k5_branding_app/features/match_editor/presentation/widgets/input_fields/match_details_section.dart';
+import 'package:chukshin_app/features/match_editor/presentation/widgets/input_fields/match_details_section.dart';
 
 class DetailsTab extends StatelessWidget {
   const DetailsTab({super.key});

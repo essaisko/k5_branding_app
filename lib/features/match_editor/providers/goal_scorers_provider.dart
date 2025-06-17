@@ -1,11 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/domain/usecases/update_match.dart';
-import 'package:k5_branding_app/data/repositories/match_repository_impl.dart'; // UpdateMatch 의존성 해결 위해 필요
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/domain/usecases/update_match.dart';
+import 'package:chukshin_app/data/repositories/match_repository_impl.dart'; // UpdateMatch 의존성 해결 위해 필요
 // import 'package:uuid/uuid.dart'; // 직접 ID 생성 안 함
 import 'dart:developer' as dev;
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart'; // MatchEditorProvider 참조
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart'; // MatchEditorProvider 참조
 
 /// Provider for goal scorers list management
 final goalScorersProvider =

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/domain/entities/match.dart'; // Match 엔티티 import
-import 'package:k5_branding_app/domain/entities/team.dart'; // Team 엔티티 import
-import 'package:k5_branding_app/features/match_editor/providers/sample_data_provider.dart'; // sampleTeamsProvider import
-import 'dart:developer' as developer; // dart:developer import
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart'; // FirstWhereOrNullExtension 사용을 위해 추가
-// import 'package:k5_branding_app/domain/repositories/team_repository.dart'; // 현재 미사용으로 주석 처리
+import 'package:chukshin_app/domain/entities/match.dart'; // Match 엔티티 import
+import 'package:chukshin_app/domain/entities/team.dart'; // Team 엔티티 import
+import 'package:chukshin_app/features/match_editor/providers/sample_data_provider.dart'; // sampleTeamsProvider import
+import 'dart:developer' as dev;
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart'; // FirstWhereOrNullExtension 사용을 위해 추가
+// import 'package:chukshin_app/domain/repositories/team_repository.dart'; // 현재 미사용으로 주석 처리
 
 /// 팀 컬러 테마 상태를 관리하는 프로바이더
 ///
@@ -156,7 +156,7 @@ class TeamColorNotifier extends Notifier<TeamColorState> {
         defaultMatch.awayTeamName.isEmpty) {
       // 팀 이름이 없는 경우 (emptyMatchTemplate 사용 시), 앱의 최초 기본 색상으로 설정
       state = TeamColorState();
-      developer.log('TeamColorNotifier: 팀 이름이 없어 앱 최초 기본 색상으로 초기화되었습니다.',
+      dev.log('TeamColorNotifier: 팀 이름이 없어 앱 최초 기본 색상으로 초기화되었습니다.',
           name: 'TeamColor');
     } else {
       // 팀 이름이 있는 경우, 기존 로직대로 sampleTeams에서 색상 검색
@@ -179,7 +179,7 @@ class TeamColorNotifier extends Notifier<TeamColorState> {
         colorThemeSource: ColorThemeSource.home,
         isCustomColor: false, // 팀 색상을 사용하므로 isCustomColor는 false
       );
-      developer.log(
+      dev.log(
           'TeamColorNotifier: 팀 색상이 Match 정보 기반으로 초기화되었습니다. 홈: $homeColor, 어웨이: $awayColor',
           name: 'TeamColor');
     }

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/focus_manager_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/focus_manager_provider.dart';
 import 'dart:developer' as dev;
 
 /// 경기 세부 정보 관리 프로바이더

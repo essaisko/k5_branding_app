@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart'; // 초기값 참조 및 defaultMatchTemplate 사용
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart'; // 초기값 참조 및 defaultMatchTemplate 사용
 import 'dart:developer' as dev;
-import 'package:k5_branding_app/core/constants/asset_paths.dart'; // AssetPaths 임포트 추가
+import 'package:chukshin_app/core/constants/asset_paths.dart'; // AssetPaths 임포트 추가
 
 // Provider 정의
 final teamDetailsProvider =

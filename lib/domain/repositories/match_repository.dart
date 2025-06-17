@@ -1,4 +1,4 @@
-import 'package:k5_branding_app/domain/entities/match.dart';
+import 'package:chukshin_app/domain/entities/match.dart';
 
 /// Repository interface for Match entities
 ///

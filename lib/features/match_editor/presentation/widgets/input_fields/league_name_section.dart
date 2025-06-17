@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:k5_branding_app/core/theme/app_typography.dart';
-import 'package:k5_branding_app/features/match_editor/providers/focus_manager_provider.dart';
-import 'package:k5_branding_app/features/match_editor/providers/match_editor_provider.dart';
+import 'package:chukshin_app/core/theme/app_typography.dart';
+import 'package:chukshin_app/features/match_editor/providers/focus_manager_provider.dart';
+import 'package:chukshin_app/features/match_editor/providers/match_editor_provider.dart';
 
 /// 리그 이름 샘플 데이터 프로바이더
 final leagueNameSamplesProvider = Provider<List<String>>((ref) {

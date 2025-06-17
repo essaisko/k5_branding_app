@@ -1,4 +1,4 @@
-/// 앱 내 라우트 정의
+/// 축신 앱 내 라우트 정의
 /// - 중앙화된 라우트 상수
 /// - 일관된 이름 패턴
 class AppRoutes {
@@ -7,10 +7,28 @@ class AppRoutes {
 
   // 라우트 이름 상수
 
-  // 에디터 라우트
+  // 개발자 도구
+  static const String debug = '/debug';
+
+  // 인증 라우트
+  static const String authGate = '/auth-gate';
+  static const String opening = '/opening';
+  static const String login = '/login';
+  static const String profileSetup = '/profile-setup';
+  static const String firebaseSetup = '/firebase-setup';
+
+  // 메인 앱 라우트
   static const String home = '/';
-  static const String editor = '/editor';
-  static const String editorSettings = '/editor/settings';
+  static const String main = '/main';
+  static const String feed = '/feed';
+  static const String myTeam = '/my-team';
+  static const String records = '/records';
+  static const String search = '/search';
+  static const String profile = '/profile';
+
+  // 템플릿 편집기 (기능 메뉴로 이동)
+  static const String templateEditor = '/template-editor';
+  static const String editorSettings = '/template-editor/settings';
 
   // 팀 관리
   static const String teams = '/teams';

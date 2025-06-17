@@ -1,5 +1,5 @@
-import 'package:k5_branding_app/domain/entities/match.dart';
-import 'package:k5_branding_app/domain/repositories/match_repository.dart';
+import 'package:chukshin_app/domain/entities/match.dart';
+import 'package:chukshin_app/domain/repositories/match_repository.dart';
 
 /// UpdateMatch use case following the Clean Architecture pattern
 ///
@@ -83,13 +83,12 @@ class UpdateMatch {
   /// Update a specific scorer's information
   void updateScorer(ScorerInfo updatedScorer) {
     final match = repository.getCurrentEditingMatch();
-    final newScorers =
-        match.scorers.map((scorer) {
-          if (scorer.id == updatedScorer.id) {
-            return updatedScorer;
-          }
-          return scorer;
-        }).toList();
+    final newScorers = match.scorers.map((scorer) {
+      if (scorer.id == updatedScorer.id) {
+        return updatedScorer;
+      }
+      return scorer;
+    }).toList();
 
     repository.updateCurrentEditingMatch(match.copyWith(scorers: newScorers));
   }
