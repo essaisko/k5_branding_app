@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chukshin_app/domain/entities/post.dart';
 import 'package:chukshin_app/features/authentication/presentation/providers/auth_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -31,12 +32,37 @@ class PostState {
 /// 포스트 관리 Notifier
 class PostNotifier extends StateNotifier<PostState> {
   PostNotifier() : super(const PostState()) {
-    _loadSamplePosts();
+    _loadPostsFromFirebase();
   }
 
   static const _uuid = Uuid();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// 샘플 포스트 로드 (개발용)
+  /// Firebase에서 포스트 로드
+  Future<void> _loadPostsFromFirebase() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final querySnapshot = await _firestore
+          .collection('posts')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final posts = querySnapshot.docs
+          .map((doc) => Post.fromMap({...doc.data(), 'id': doc.id}))
+          .toList();
+
+      state = state.copyWith(posts: posts, isLoading: false);
+
+      print('✅ Firebase에서 ${posts.length}개 포스트 로드 완료');
+    } catch (e) {
+      print('❌ Firebase 포스트 로드 오류: $e');
+      // Firebase 연결 실패 시 샘플 데이터 사용
+      _loadSamplePosts();
+    }
+  }
+
+  /// 샘플 포스트 로드 (Firebase 연결 실패 시 사용)
   void _loadSamplePosts() {
     final samplePosts = [
       Post(
@@ -77,10 +103,10 @@ class PostNotifier extends StateNotifier<PostState> {
       ),
     ];
 
-    state = state.copyWith(posts: samplePosts);
+    state = state.copyWith(posts: samplePosts, isLoading: false);
   }
 
-  /// 새 포스트 생성
+  /// 새 포스트 생성 (Firebase에 저장)
   Future<void> createPost(
       CreatePostRequest request, String authorId, String authorName) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -98,27 +124,42 @@ class PostNotifier extends StateNotifier<PostState> {
         createdAt: DateTime.now(),
       );
 
+      // Firebase에 저장
+      await _firestore.collection('posts').doc(newPost.id).set(newPost.toMap());
+
+      // 로컬 상태 업데이트
       final updatedPosts = [newPost, ...state.posts];
       state = state.copyWith(
         posts: updatedPosts,
         isLoading: false,
       );
 
-      print('✅ 새 포스트 생성 완료: ${newPost.title}');
+      print('✅ 새 포스트 Firebase 저장 완료: ${newPost.title}');
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         error: '포스트 생성 실패: $e',
       );
-      print('❌ 포스트 생성 오류: $e');
+      print('❌ 포스트 Firebase 저장 오류: $e');
     }
   }
 
-  /// 포스트 수정
+  /// 포스트 수정 (Firebase 업데이트)
   Future<void> updatePost(String postId, String title, String content) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      final updateData = {
+        'title': title,
+        'content': content,
+        'updatedAt': DateTime.now().toIso8601String(),
+        'isEdited': true,
+      };
+
+      // Firebase 업데이트
+      await _firestore.collection('posts').doc(postId).update(updateData);
+
+      // 로컬 상태 업데이트
       final updatedPosts = state.posts.map((post) {
         if (post.id == postId) {
           return post.copyWith(
@@ -136,21 +177,25 @@ class PostNotifier extends StateNotifier<PostState> {
         isLoading: false,
       );
 
-      print('✅ 포스트 수정 완료: $postId');
+      print('✅ 포스트 Firebase 수정 완료: $postId');
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         error: '포스트 수정 실패: $e',
       );
-      print('❌ 포스트 수정 오류: $e');
+      print('❌ 포스트 Firebase 수정 오류: $e');
     }
   }
 
-  /// 포스트 삭제
+  /// 포스트 삭제 (Firebase에서 삭제)
   Future<void> deletePost(String postId) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      // Firebase에서 삭제
+      await _firestore.collection('posts').doc(postId).delete();
+
+      // 로컬 상태 업데이트
       final updatedPosts =
           state.posts.where((post) => post.id != postId).toList();
 
@@ -159,26 +204,61 @@ class PostNotifier extends StateNotifier<PostState> {
         isLoading: false,
       );
 
-      print('✅ 포스트 삭제 완료: $postId');
+      print('✅ 포스트 Firebase 삭제 완료: $postId');
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         error: '포스트 삭제 실패: $e',
       );
-      print('❌ 포스트 삭제 오류: $e');
+      print('❌ 포스트 Firebase 삭제 오류: $e');
     }
   }
 
-  /// 좋아요 토글
-  void toggleLike(String postId) {
-    final updatedPosts = state.posts.map((post) {
-      if (post.id == postId) {
-        return post.copyWith(likes: post.likes + 1);
-      }
-      return post;
-    }).toList();
+  /// 좋아요 토글 (Firebase 업데이트)
+  Future<void> toggleLike(String postId) async {
+    try {
+      final post = state.posts.firstWhere((p) => p.id == postId);
+      final newLikes = post.likes + 1;
 
-    state = state.copyWith(posts: updatedPosts);
+      // Firebase 업데이트
+      await _firestore.collection('posts').doc(postId).update({
+        'likes': newLikes,
+      });
+
+      // 로컬 상태 업데이트
+      final updatedPosts = state.posts.map((post) {
+        if (post.id == postId) {
+          return post.copyWith(likes: newLikes);
+        }
+        return post;
+      }).toList();
+
+      state = state.copyWith(posts: updatedPosts);
+    } catch (e) {
+      print('❌ 좋아요 업데이트 오류: $e');
+    }
+  }
+
+  /// 댓글 수 업데이트 (Firebase 업데이트)
+  Future<void> updateCommentCount(String postId, int commentCount) async {
+    try {
+      // Firebase 업데이트
+      await _firestore.collection('posts').doc(postId).update({
+        'comments': commentCount,
+      });
+
+      // 로컬 상태 업데이트
+      final updatedPosts = state.posts.map((post) {
+        if (post.id == postId) {
+          return post.copyWith(comments: commentCount);
+        }
+        return post;
+      }).toList();
+
+      state = state.copyWith(posts: updatedPosts);
+    } catch (e) {
+      print('❌ 댓글 수 업데이트 오류: $e');
+    }
   }
 
   /// 팀별 포스트 필터링
@@ -200,38 +280,60 @@ class PostNotifier extends StateNotifier<PostState> {
   List<Post> getPostsByTeamAndCategory(String teamId, PostCategory category) {
     return state.posts
         .where((post) => post.teamId == teamId && post.category == category)
-        .toList();
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
+  /// 실시간 포스트 리스너 설정 (Firebase 실시간 업데이트)
+  void listenToPostsRealTime() {
+    _firestore
+        .collection('posts')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .listen(
+      (snapshot) {
+        try {
+          final posts = snapshot.docs
+              .map((doc) => Post.fromMap({...doc.data(), 'id': doc.id}))
+              .toList();
+
+          state = state.copyWith(posts: posts, isLoading: false);
+          print('🔄 Firebase 실시간 포스트 업데이트: ${posts.length}개');
+        } catch (e) {
+          print('❌ Firebase 실시간 업데이트 오류: $e');
+        }
+      },
+      onError: (error) {
+        print('❌ Firebase 리스너 오류: $error');
+      },
+    );
   }
 }
 
-/// 포스트 상태 관리 Provider
-final postProvider = StateNotifierProvider<PostNotifier, PostState>((ref) {
-  return PostNotifier();
-});
+/// 포스트 Provider
+final postProvider = StateNotifierProvider<PostNotifier, PostState>(
+  (ref) => PostNotifier(),
+);
 
 /// 팀별 포스트 Provider
 final teamPostsProvider = Provider.family<List<Post>, String>((ref, teamId) {
   final postState = ref.watch(postProvider);
-  return postState.posts.where((post) => post.teamId == teamId).toList();
+  return postState.posts.where((post) => post.teamId == teamId).toList()
+    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 });
 
-/// 카테고리별 포스트 Provider
-final categoryPostsProvider =
-    Provider.family<List<Post>, PostCategory>((ref, category) {
-  final postState = ref.watch(postProvider);
-  return postState.posts.where((post) => post.category == category).toList();
-});
-
-/// 팀과 카테고리별 포스트 Provider
+/// 팀별 카테고리 포스트 Provider
 final teamCategoryPostsProvider =
     Provider.family<List<Post>, ({String teamId, PostCategory category})>(
-        (ref, params) {
-  final postState = ref.watch(postProvider);
-  return postState.posts
-      .where((post) =>
-          post.teamId == params.teamId && post.category == params.category)
-      .toList();
-});
+  (ref, params) {
+    final postState = ref.watch(postProvider);
+    return postState.posts
+        .where((post) =>
+            post.teamId == params.teamId && post.category == params.category)
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  },
+);
 
 /// 현재 사용자의 포스트 Provider
 final myPostsProvider = Provider<List<Post>>((ref) {

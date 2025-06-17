@@ -162,3 +162,102 @@ class CreatePostRequest {
     };
   }
 }
+
+/// 댓글 엔티티
+class Comment {
+  final String id;
+  final String postId;
+  final String authorId;
+  final String authorName;
+  final String? authorProfileImage;
+  final String content;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final int likes;
+  final bool isEdited;
+
+  const Comment({
+    required this.id,
+    required this.postId,
+    required this.authorId,
+    required this.authorName,
+    this.authorProfileImage,
+    required this.content,
+    required this.createdAt,
+    this.updatedAt,
+    this.likes = 0,
+    this.isEdited = false,
+  });
+
+  Comment copyWith({
+    String? id,
+    String? postId,
+    String? authorId,
+    String? authorName,
+    String? authorProfileImage,
+    String? content,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? likes,
+    bool? isEdited,
+  }) {
+    return Comment(
+      id: id ?? this.id,
+      postId: postId ?? this.postId,
+      authorId: authorId ?? this.authorId,
+      authorName: authorName ?? this.authorName,
+      authorProfileImage: authorProfileImage ?? this.authorProfileImage,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      likes: likes ?? this.likes,
+      isEdited: isEdited ?? this.isEdited,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'postId': postId,
+      'authorId': authorId,
+      'authorName': authorName,
+      'authorProfileImage': authorProfileImage,
+      'content': content,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'likes': likes,
+      'isEdited': isEdited,
+    };
+  }
+
+  factory Comment.fromMap(Map<String, dynamic> map) {
+    return Comment(
+      id: map['id'] as String,
+      postId: map['postId'] as String,
+      authorId: map['authorId'] as String,
+      authorName: map['authorName'] as String,
+      authorProfileImage: map['authorProfileImage'] as String?,
+      content: map['content'] as String,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.parse(map['updatedAt'] as String)
+          : null,
+      likes: map['likes'] as int? ?? 0,
+      isEdited: map['isEdited'] as bool? ?? false,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'Comment(id: $id, postId: $postId, authorName: $authorName)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Comment && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+}

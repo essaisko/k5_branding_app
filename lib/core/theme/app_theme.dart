@@ -92,18 +92,20 @@ class AppTheme {
 
       // App bar theme
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.textOnPrimary,
-        elevation: 0,
-        centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0.5,
+        shadowColor: Colors.black.withOpacity(0.1),
+        centerTitle: false,
         titleTextStyle: AppTypography.heading3.copyWith(
-          color: AppColors.textOnPrimary,
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(
-          color: AppColors.textOnPrimary,
+        iconTheme: const IconThemeData(
+          color: Colors.black87,
         ),
-        actionsIconTheme: IconThemeData(
-          color: AppColors.textOnPrimary,
+        actionsIconTheme: const IconThemeData(
+          color: Colors.black87,
         ),
       ),
 

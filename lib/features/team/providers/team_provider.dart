@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chukshin_app/core/services/storage_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:chukshin_app/core/services/firebase_storage_service.dart';
 import 'dart:io';
 
 /// 팀 정보 클래스
@@ -198,4 +201,89 @@ final teamByNameProvider = Provider.family<Team?, String>((ref, teamName) {
 final teamHeaderImageProvider = Provider.family<File?, String>((ref, teamId) {
   final teamState = ref.watch(teamProvider);
   return teamState.headerImages[teamId];
+});
+
+// 팀 배경 이미지 상태 관리
+class TeamBackgroundNotifier extends StateNotifier<Map<String, String?>> {
+  TeamBackgroundNotifier() : super({}) {
+    _loadBackgroundImages();
+  }
+
+  final FirebaseStorageService _storageService = FirebaseStorageService();
+  final ImagePicker _imagePicker = ImagePicker();
+
+  // SharedPreferences에서 배경 이미지 URL 로드
+  Future<void> _loadBackgroundImages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys =
+        prefs.getKeys().where((key) => key.startsWith('team_bg_')).toList();
+
+    final backgroundImages = <String, String?>{};
+    for (final key in keys) {
+      final teamName = key.replaceFirst('team_bg_', '');
+      backgroundImages[teamName] = prefs.getString(key);
+    }
+
+    state = backgroundImages;
+  }
+
+  // 팀 배경 이미지 설정
+  Future<void> setTeamBackgroundImage(String teamName, String? imageUrl) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (imageUrl != null) {
+      await prefs.setString('team_bg_$teamName', imageUrl);
+    } else {
+      await prefs.remove('team_bg_$teamName');
+    }
+
+    state = {
+      ...state,
+      teamName: imageUrl,
+    };
+  }
+
+  // 이미지 선택 및 업로드
+  Future<String?> pickAndUploadImage(String teamName) async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+
+      if (image == null) return null;
+
+      // Firebase Storage에 업로드
+      final imageUrl = await _storageService.uploadTeamBackground(
+        File(image.path),
+        teamName,
+      );
+
+      // 로컬에 저장
+      await setTeamBackgroundImage(teamName, imageUrl);
+
+      return imageUrl;
+    } catch (e) {
+      print('이미지 업로드 실패: $e');
+      return null;
+    }
+  }
+
+  // 배경 이미지 제거
+  Future<void> removeBackgroundImage(String teamName) async {
+    await setTeamBackgroundImage(teamName, null);
+  }
+
+  // 특정 팀의 배경 이미지 URL 가져오기
+  String? getTeamBackgroundImage(String teamName) {
+    return state[teamName];
+  }
+}
+
+// Provider 정의
+final teamBackgroundProvider =
+    StateNotifierProvider<TeamBackgroundNotifier, Map<String, String?>>((ref) {
+  return TeamBackgroundNotifier();
 });

@@ -60,7 +60,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        automaticallyImplyLeading: true,
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             Container(
@@ -82,15 +82,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
+                color: Colors.black87,
               ),
             ),
           ],
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
+        foregroundColor: Colors.black87,
+        elevation: 0.5,
+        shadowColor: Colors.black.withOpacity(0.1),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon:
+                const Icon(Icons.notifications_outlined, color: Colors.black87),
             onPressed: () {
               // TODO: 알림 페이지로 이동
             },

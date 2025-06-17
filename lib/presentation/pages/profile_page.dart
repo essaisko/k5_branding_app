@@ -6,6 +6,8 @@ import 'package:chukshin_app/features/authentication/presentation/providers/auth
 import 'package:chukshin_app/presentation/navigation/routes.dart';
 import 'package:chukshin_app/domain/entities/post.dart';
 import 'package:chukshin_app/features/common/providers/post_provider.dart';
+import 'package:chukshin_app/features/common/pages/post_detail_page.dart';
+import 'package:chukshin_app/presentation/navigation/navigation_state.dart';
 
 /// 나의 정보 페이지
 class ProfilePage extends ConsumerStatefulWidget {
@@ -58,15 +60,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           '나의 정보',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
+        foregroundColor: Colors.black87,
+        elevation: 0.5,
+        shadowColor: Colors.black.withOpacity(0.1),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings, color: Colors.black87),
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.settings);
             },
@@ -558,112 +566,139 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       timeAgo = '${difference.inDays}일 전';
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Row(
-        children: [
-          // 카테고리 아이콘
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: _getCategoryColor(post.category).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              _getCategoryIcon(post.category),
-              size: 16,
-              color: _getCategoryColor(post.category),
-            ),
-          ),
-          const SizedBox(width: 12),
+    // 팀별 색상 매핑
+    final teamColors = {
+      '한마음FC': Colors.red,
+      '수우FC': Colors.blue,
+      '한FC': Colors.green,
+      '기타': Colors.grey,
+    };
 
-          // 글 정보
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color:
-                            _getCategoryColor(post.category).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        post.category.displayName,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: _getCategoryColor(post.category),
-                          fontWeight: FontWeight.w600,
+    final teamColor = teamColors[post.teamId] ?? Colors.grey;
+
+    return GestureDetector(
+      onTap: () {
+        // 게시글 상세 페이지로 이동
+        ref.read(navigationProvider.notifier).pushFullScreen(
+              PostDetailPage(
+                post: post,
+                teamColor: teamColor,
+              ),
+            );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: Row(
+          children: [
+            // 카테고리 아이콘
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: _getCategoryColor(post.category).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                _getCategoryIcon(post.category),
+                size: 16,
+                color: _getCategoryColor(post.category),
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // 글 정보
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color:
+                              _getCategoryColor(post.category).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          post.category.displayName,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: _getCategoryColor(post.category),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      post.teamId,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  post.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Text(
-                      timeAgo,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(Icons.favorite, size: 12, color: Colors.grey[400]),
-                    const SizedBox(width: 2),
-                    Text(
-                      '${post.likes}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                    if (post.isEdited) ...[
                       const SizedBox(width: 8),
                       Text(
-                        '편집됨',
+                        post.teamId,
                         style: TextStyle(
                           fontSize: 10,
-                          color: Colors.grey[400],
+                          color: Colors.grey[500],
                         ),
                       ),
                     ],
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    post.title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Text(
+                        timeAgo,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(Icons.favorite, size: 12, color: Colors.grey[400]),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${post.likes}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                      if (post.isEdited) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          '편집됨',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            // 클릭 표시 아이콘 추가
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey[400],
+            ),
+          ],
+        ),
       ),
     );
   }

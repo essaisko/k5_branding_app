@@ -25,13 +25,18 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        automaticallyImplyLeading: true,
+        automaticallyImplyLeading: false,
         title: const Text(
           '검색',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
+        foregroundColor: Colors.black87,
+        elevation: 0.5,
+        shadowColor: Colors.black.withOpacity(0.1),
       ),
       body: Column(
         children: [

@@ -6,17 +6,20 @@ import 'dart:io';
 import 'package:chukshin_app/domain/entities/post.dart';
 import 'package:chukshin_app/features/common/providers/post_provider.dart';
 import 'package:chukshin_app/features/authentication/presentation/providers/auth_provider.dart';
+import 'package:chukshin_app/presentation/navigation/navigation_state.dart';
 import 'package:chukshin_app/core/constants/app_constants.dart';
+import 'package:chukshin_app/core/services/firebase_storage_service.dart';
+import 'package:chukshin_app/presentation/pages/team_community_page.dart';
 
 /// 포스트 작성 페이지
 class CreatePostPage extends ConsumerStatefulWidget {
-  final String teamId;
+  final String teamName;
   final PostCategory category;
   final Color teamColor;
 
   const CreatePostPage({
     super.key,
-    required this.teamId,
+    required this.teamName,
     required this.category,
     required this.teamColor,
   });
@@ -31,7 +34,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage> {
   final _formKey = GlobalKey<FormState>();
   final List<File> _selectedImages = [];
   final ImagePicker _imagePicker = ImagePicker();
-  bool _isLoading = false;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -47,30 +50,46 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text('${widget.category.displayName} 작성'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () {
+            // 팀 커뮤니티로 돌아가기
+            ref.read(navigationProvider.notifier).popToTeamCommunity(
+                  TeamCommunityPage(
+                    teamName: widget.teamName,
+                    teamColor: widget.teamColor,
+                  ),
+                );
+          },
+        ),
+        title: Text(
+          '${widget.category.displayName} 작성',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
         backgroundColor: Colors.white,
-        elevation: 0,
+        foregroundColor: Colors.black87,
+        elevation: 0.5,
+        shadowColor: Colors.black.withOpacity(0.1),
         actions: [
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else
-            TextButton(
-              onPressed: _submitPost,
-              child: Text(
-                '완료',
-                style: TextStyle(
-                  color: widget.teamColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+          TextButton(
+            onPressed: _isSubmitting ? null : _submitPost,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(
+                    '완료',
+                    style: TextStyle(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+          ),
         ],
       ),
       body: SafeArea(
@@ -183,7 +202,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage> {
                       ),
                     const Spacer(),
                     ElevatedButton(
-                      onPressed: _isLoading ? null : _submitPost,
+                      onPressed: _isSubmitting ? null : _submitPost,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: widget.teamColor,
                         foregroundColor: Colors.white,
@@ -192,7 +211,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage> {
                           vertical: 12,
                         ),
                       ),
-                      child: _isLoading
+                      child: _isSubmitting
                           ? const SizedBox(
                               width: 20,
                               height: 20,
@@ -353,38 +372,26 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage> {
 
   Future<void> _pickImages() async {
     try {
-      final List<XFile> pickedFiles = await _imagePicker.pickMultiImage(
-        maxWidth: AppConstants.maxImageWidth.toDouble(),
-        maxHeight: AppConstants.maxImageHeight.toDouble(),
-        imageQuality: AppConstants.imageQuality,
+      final List<XFile> images = await _imagePicker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
       );
 
-      if (pickedFiles.isNotEmpty) {
-        final remainingSlots = 5 - _selectedImages.length;
-        final filesToAdd = pickedFiles.take(remainingSlots);
-
-        for (final file in filesToAdd) {
-          _selectedImages.add(File(file.path));
-        }
-
-        setState(() {});
-
-        if (pickedFiles.length > remainingSlots) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('최대 5장까지 선택할 수 있습니다. ${remainingSlots}장만 추가되었습니다.'),
-              backgroundColor: widget.teamColor,
-            ),
-          );
-        }
+      if (images.isNotEmpty) {
+        setState(() {
+          // 최대 5개까지만 선택 가능
+          final remainingSlots = 5 - _selectedImages.length;
+          _selectedImages.addAll(
+              images.take(remainingSlots).map((xFile) => File(xFile.path)));
+        });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('이미지 선택 중 오류가 발생했습니다: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('이미지 선택 실패: $e')),
+        );
+      }
     }
   }
 
@@ -395,48 +402,54 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage> {
   }
 
   Future<void> _submitPost() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     final authState = ref.read(authProvider);
-    final user = authState.user;
-
-    if (user == null) {
+    if (authState.user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('로그인이 필요합니다.'),
-          backgroundColor: Colors.red,
-        ),
+        const SnackBar(content: Text('로그인이 필요합니다')),
       );
       return;
     }
 
     setState(() {
-      _isLoading = true;
+      _isSubmitting = true;
     });
 
     try {
+      // 이미지 업로드
+      List<String> imageUrls = [];
+      if (_selectedImages.isNotEmpty) {
+        final storageService = FirebaseStorageService();
+        imageUrls = await storageService.uploadImages(_selectedImages, 'posts');
+      }
+
       final request = CreatePostRequest(
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
-        imagePaths: _selectedImages.map((file) => file.path).toList(),
+        imagePaths: imageUrls,
         category: widget.category,
-        teamId: widget.teamId,
+        teamId: widget.teamName,
       );
 
       await ref.read(postProvider.notifier).createPost(
             request,
-            user.id,
-            user.name,
+            authState.user!.id,
+            authState.user!.name,
           );
 
       if (mounted) {
-        Navigator.pop(context);
+        // 팀 커뮤니티 페이지로 돌아가기
+        ref.read(navigationProvider.notifier).popToTeamCommunity(
+              TeamCommunityPage(
+                teamName: widget.teamName,
+                teamColor: widget.teamColor,
+              ),
+            );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${widget.category.displayName}가 게시되었습니다.'),
-            backgroundColor: widget.teamColor,
+            content: Text('${widget.category.displayName}이(가) 성공적으로 게시되었습니다'),
+            backgroundColor: Colors.green,
           ),
         );
       }
@@ -444,7 +457,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('게시 중 오류가 발생했습니다: $e'),
+            content: Text('게시 실패: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -452,7 +465,7 @@ class _CreatePostPageState extends ConsumerState<CreatePostPage> {
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          _isSubmitting = false;
         });
       }
     }

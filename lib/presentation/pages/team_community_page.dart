@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:chukshin_app/features/authentication/presentation/providers/auth_provider.dart';
 import 'package:chukshin_app/features/team/providers/team_provider.dart';
 import 'package:chukshin_app/core/constants/app_constants.dart';
 import 'package:chukshin_app/domain/entities/post.dart';
 import 'package:chukshin_app/features/common/providers/post_provider.dart';
 import 'package:chukshin_app/features/common/pages/create_post_page.dart';
+import 'package:chukshin_app/features/common/pages/post_detail_page.dart';
+import 'package:chukshin_app/presentation/navigation/navigation_state.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -48,6 +51,24 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+
+    // 탭 변경 리스너 추가
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        // 탭이 변경될 때 네비게이션 상태에 저장
+        ref
+            .read(navigationProvider.notifier)
+            .setTeamCommunityTabIndex(_tabController.index);
+      }
+    });
+
+    // 저장된 탭 인덱스가 있으면 복원
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final savedTabIndex = ref.read(navigationProvider).teamCommunityTabIndex;
+      if (savedTabIndex != null && savedTabIndex != _tabController.index) {
+        _tabController.animateTo(savedTabIndex);
+      }
+    });
   }
 
   @override
@@ -72,8 +93,8 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => ref.read(navigationProvider.notifier).popOverlay(),
         ),
         title: Row(
           children: [
@@ -104,6 +125,7 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
+                  color: Colors.black87,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -111,16 +133,18 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
           ],
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
+        foregroundColor: Colors.black87,
+        elevation: 0.5,
+        shadowColor: Colors.black.withOpacity(0.1),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.search, color: Colors.black87),
             onPressed: () {
               // TODO: 팀 내 검색 기능
             },
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert, color: Colors.black87),
             onPressed: () {
               _showTeamMenu(context);
             },
@@ -327,7 +351,25 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showCreatePostDialog(context, teamColor);
+          // 현재 활성화된 탭에 따라 자동으로 카테고리 결정
+          PostCategory category;
+          switch (_tabController.index) {
+            case 0:
+              category = PostCategory.gallery;
+              break;
+            case 1:
+              category = PostCategory.community;
+              break;
+            case 2:
+              category = PostCategory.schedule;
+              break;
+            default:
+              category = PostCategory.community;
+              break;
+          }
+
+          // 직접 게시글 작성 페이지로 이동
+          _navigateToCreatePost(category, teamColor);
         },
         backgroundColor: teamColor,
         child: const Icon(Icons.add, color: Colors.white),
@@ -388,115 +430,127 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
   }
 
   Widget _buildScheduleCard(Post post, Color teamColor) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            // 날짜/시간 표시
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: teamColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: () {
+        // 게시글 상세 페이지로 이동
+        ref.read(navigationProvider.notifier).pushFullScreen(
+              PostDetailPage(
+                post: post,
+                teamColor: teamColor,
+                teamName: widget.teamName,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${post.createdAt.day}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: teamColor,
-                    ),
-                  ),
-                  Text(
-                    '${post.createdAt.month}월',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: teamColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-
-            // 일정 정보
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    post.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    post.content,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.person,
-                        size: 14,
-                        color: Colors.grey[500],
+            );
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // 날짜/시간 표시
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: teamColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${post.createdAt.day}',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: teamColor,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        post.authorName,
-                        style: TextStyle(
-                          fontSize: 12,
+                    ),
+                    Text(
+                      '${post.createdAt.month}월',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: teamColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // 일정 정보
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      post.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      post.content,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person,
+                          size: 14,
                           color: Colors.grey[500],
                         ),
-                      ),
-                      const Spacer(),
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: Colors.grey[500],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${post.createdAt.hour.toString().padLeft(2, '0')}:${post.createdAt.minute.toString().padLeft(2, '0')}',
-                        style: TextStyle(
-                          fontSize: 12,
+                        const SizedBox(width: 4),
+                        Text(
+                          post.authorName,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                        const Spacer(),
+                        Icon(
+                          Icons.access_time,
+                          size: 14,
                           color: Colors.grey[500],
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 4),
+                        Text(
+                          '${post.createdAt.hour.toString().padLeft(2, '0')}:${post.createdAt.minute.toString().padLeft(2, '0')}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            // 상태 아이콘
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: teamColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
+              // 상태 아이콘
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: teamColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.event,
+                  color: teamColor,
+                  size: 20,
+                ),
               ),
-              child: Icon(
-                Icons.event,
-                color: teamColor,
-                size: 20,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -671,39 +725,92 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
       );
     }
 
-    return GridView.builder(
+    // 원본 비율 유지를 위해 ListView로 변경
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 1,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
       itemCount: galleryPosts.length,
       itemBuilder: (context, index) {
         final post = galleryPosts[index];
         final firstImage = post.images.isNotEmpty ? post.images.first : null;
 
-        return Card(
-          clipBehavior: Clip.antiAlias,
-          child: Stack(
-            children: [
-              firstImage != null
-                  ? Image.file(
-                      File(firstImage),
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: teamColor.withOpacity(0.1),
-                        child: Icon(
-                          Icons.image,
-                          size: 50,
-                          color: teamColor,
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: GestureDetector(
+            onTap: () {
+              // 게시글 상세 페이지로 이동
+              ref.read(navigationProvider.notifier).pushFullScreen(
+                    PostDetailPage(
+                      post: post,
+                      teamColor: teamColor,
+                      teamName: widget.teamName,
+                    ),
+                  );
+            },
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 이미지 영역 (원본 비율 유지)
+                  if (firstImage != null)
+                    Stack(
+                      children: [
+                        Image.network(
+                          firstImage,
+                          width: double.infinity,
+                          fit: BoxFit.fitWidth, // 원본 비율 유지하면서 너비에 맞춤
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                            width: double.infinity,
+                            height: 200,
+                            color: teamColor.withOpacity(0.1),
+                            child: Icon(
+                              Icons.image,
+                              size: 50,
+                              color: teamColor,
+                            ),
+                          ),
                         ),
-                      ),
+
+                        // 여러 이미지 표시 아이콘
+                        if (post.images.length > 1)
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.collections,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${post.images.length}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
                     )
-                  : Container(
+                  else
+                    Container(
+                      width: double.infinity,
+                      height: 200,
                       color: teamColor.withOpacity(0.1),
                       child: Icon(
                         Icons.image,
@@ -712,100 +819,85 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
                       ),
                     ),
 
-              // 여러 이미지 표시 아이콘
-              if (post.images.length > 1)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  // 게시글 정보 영역
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.collections,
-                          color: Colors.white,
-                          size: 12,
-                        ),
-                        const SizedBox(width: 2),
                         Text(
-                          '${post.images.length}',
+                          post.title,
                           style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.7),
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        post.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Row(
-                        children: [
+                        if (post.content.isNotEmpty) ...[
+                          const SizedBox(height: 4),
                           Text(
-                            post.authorName,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10,
+                            post.content,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
                             ),
-                          ),
-                          const Spacer(),
-                          Icon(
-                            Icons.favorite,
-                            color: Colors.white70,
-                            size: 10,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            '${post.likes}',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10,
-                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person,
+                              size: 14,
+                              color: Colors.grey[500],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              post.authorName,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.favorite,
+                              size: 14,
+                              color: Colors.grey[500],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${post.likes}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Icon(
+                              Icons.comment,
+                              size: 14,
+                              color: Colors.grey[500],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${post.comments}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },
@@ -1124,127 +1216,163 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
       timeAgo = '${difference.inMinutes}분 전';
     } else if (difference.inDays < 1) {
       timeAgo = '${difference.inHours}시간 전';
-    } else {
+    } else if (difference.inDays < 7) {
       timeAgo = '${difference.inDays}일 전';
+    } else {
+      timeAgo = DateFormat('yyyy.MM.dd').format(post.createdAt);
     }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 제목
-            Text(
-              post.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        // 게시글 상세 페이지로 이동
+        ref.read(navigationProvider.notifier).pushFullScreen(
+              PostDetailPage(
+                post: post,
+                teamColor: teamColor,
+                teamName: widget.teamName,
               ),
-            ),
-            const SizedBox(height: 8),
-
-            // 내용
-            Text(
-              post.content,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+            );
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 제목
+              Text(
+                post.title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
+              const SizedBox(height: 8),
 
-            // 이미지들 (갤러리 카테고리인 경우)
-            if (post.images.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 80,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: post.images.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      width: 80,
-                      margin: const EdgeInsets.only(right: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.grey[200],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.file(
-                          File(post.images[index]),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Icon(
-                            Icons.image,
-                            color: Colors.grey[400],
+              // 내용
+              Text(
+                post.content,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              // 이미지들 (갤러리 카테고리인 경우)
+              if (post.images.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 80,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: post.images.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        width: 80,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey[200],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            post.images[index],
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              Icons.image,
+                              color: Colors.grey[400],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 12),
-
-            // 하단 정보 (작성자, 시간, 좋아요)
-            Row(
-              children: [
-                Icon(Icons.person, size: 16, color: teamColor),
-                const SizedBox(width: 4),
-                Text(
-                  post.authorName,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: teamColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Icon(Icons.access_time, size: 16, color: Colors.grey[400]),
-                const SizedBox(width: 4),
-                Text(
-                  timeAgo,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[400],
-                  ),
-                ),
-                if (post.isEdited) ...[
-                  const SizedBox(width: 8),
-                  Text(
-                    '(편집됨)',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                ],
-                const Spacer(),
-                GestureDetector(
-                  onTap: () =>
-                      ref.read(postProvider.notifier).toggleLike(post.id),
-                  child: Icon(
-                    Icons.favorite_border,
-                    size: 16,
-                    color: Colors.grey[400],
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${post.likes}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[400],
+                      );
+                    },
                   ),
                 ),
               ],
-            ),
-          ],
+
+              const SizedBox(height: 12),
+
+              // 하단 정보 (작성자, 시간, 좋아요, 댓글)
+              Row(
+                children: [
+                  Icon(Icons.person, size: 16, color: teamColor),
+                  const SizedBox(width: 4),
+                  Text(
+                    post.authorName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: teamColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Icon(Icons.access_time, size: 16, color: Colors.grey[400]),
+                  const SizedBox(width: 4),
+                  Text(
+                    timeAgo,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[400],
+                    ),
+                  ),
+                  if (post.isEdited) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      '(편집됨)',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () =>
+                        ref.read(postProvider.notifier).toggleLike(post.id),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.favorite_border,
+                          size: 16,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${post.likes}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.comment_outlined,
+                        size: 16,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${post.comments}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1306,15 +1434,12 @@ class _TeamCommunityPageState extends ConsumerState<TeamCommunityPage>
 
   /// 포스트 작성 페이지로 이동
   void _navigateToCreatePost(PostCategory category, Color teamColor) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CreatePostPage(
-          teamId: widget.teamName,
-          category: category,
-          teamColor: teamColor,
-        ),
-      ),
-    );
+    ref.read(navigationProvider.notifier).pushFullScreen(
+          CreatePostPage(
+            teamName: widget.teamName,
+            category: category,
+            teamColor: teamColor,
+          ),
+        );
   }
 }
