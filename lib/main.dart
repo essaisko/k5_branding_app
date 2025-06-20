@@ -13,6 +13,7 @@ import 'package:chukshin_app/presentation/navigation/routes.dart';
 import 'package:chukshin_app/core/constants/asset_paths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer' as dev;
+import 'dart:io';
 import 'package:chukshin_app/infrastructure/database/app_database.dart';
 
 // 이미지 프리로딩을 위한 전역 상태 관리
@@ -23,9 +24,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Firebase 초기화
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // 카카오 SDK 초기화 (실제 앱 키가 있을 때만 초기화)
   // TODO: 실제 카카오 앱 키로 교체 필요
@@ -68,7 +67,7 @@ void main() async {
         // Database 프로바이더 등록
         appDatabaseProvider.overrideWithValue(database),
         // Repository 구현체 제공
-        matchRepositoryProvider.overrideWithValue(MatchRepositoryImpl(prefs)),
+        matchRepositoryProvider.overrideWithValue(MatchRepositoryImpl()),
         // 팀 저장소 구현체 제공
         teamRepositoryProvider.overrideWithValue(TeamRepositoryImpl(prefs)),
       ],
@@ -181,10 +180,7 @@ class _ChukShinAppState extends State<ChukShinApp> {
 
       // 한국어 로케일 설정
       locale: const Locale('ko', 'KR'),
-      supportedLocales: const [
-        Locale('ko', 'KR'),
-        Locale('en', 'US'),
-      ],
+      supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

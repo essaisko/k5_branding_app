@@ -34,7 +34,7 @@ class _FirebaseSetupGuideState extends State<FirebaseSetupGuide> {
       if (_isFirebaseInitialized) {
         // Firebase Auth 상태 확인
         try {
-          final auth = FirebaseAuth.instance;
+          FirebaseAuth.instance;
           _isAuthEnabled = true;
         } catch (e) {
           _isAuthEnabled = false;

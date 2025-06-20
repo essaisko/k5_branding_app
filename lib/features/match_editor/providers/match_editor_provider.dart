@@ -1,11 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chukshin_app/core/constants/asset_paths.dart';
-import 'package:chukshin_app/data/repositories/match_repository_impl.dart';
 import 'package:chukshin_app/domain/entities/match.dart';
-import 'package:chukshin_app/domain/entities/team.dart';
-import 'package:chukshin_app/domain/usecases/get_match_details.dart';
-import 'package:chukshin_app/domain/usecases/update_match.dart';
 import 'package:chukshin_app/features/match_editor/providers/design_pattern_provider.dart';
 import 'package:chukshin_app/features/match_editor/providers/theme_color_provider.dart';
 import 'package:chukshin_app/features/match_editor/providers/sample_data_provider.dart';
@@ -96,8 +91,6 @@ final matchEditorProvider = NotifierProvider<MatchEditorNotifier, Match>(() {
 
 /// Notifier for match editor state
 class MatchEditorNotifier extends Notifier<Match> {
-  late final GetMatchDetails _getMatchDetails;
-  late final UpdateMatch _updateMatch;
   static const _uuid = Uuid();
 
   // 성능 최적화를 위한 캐싱 변수 - REMOVED
@@ -110,13 +103,8 @@ class MatchEditorNotifier extends Notifier<Match> {
 
   @override
   Match build() {
-    // Initialize use cases with repository
-    final repository = ref.watch(matchRepositoryProvider);
-    _getMatchDetails = GetMatchDetails(repository);
-    _updateMatch = UpdateMatch(repository);
-
-    final match = _getMatchDetails.getCurrentEditingMatch();
-    Match updatedMatch = match;
+    // 기본 빈 템플릿으로 시작
+    Match updatedMatch = emptyMatchTemplate;
 
     if ((updatedMatch.goalScorers?.isNotEmpty ?? false) &&
         updatedMatch.scorers.isEmpty) {
@@ -247,7 +235,7 @@ class MatchEditorNotifier extends Notifier<Match> {
 
   /// 득점자 문자열 직접 업데이트 및 파싱
   /// IMPORTANT: This method should primarily be used for initial loading or explicit external string updates.
-  /// UI updates from GoalsSection should use updateScorers(List<ScorerInfo>).
+  /// UI updates from GoalsSection should use updateScorers(List&lt;ScorerInfo&gt;).
   void updateGoalScorersDirectly(String text) {
     // This check might still be useful if this method is called repeatedly with the same string externally
     if (state.goalScorers == text) {
@@ -273,8 +261,6 @@ class MatchEditorNotifier extends Notifier<Match> {
     dev.log(
         '파싱 완료 (updateGoalScorersDirectly) - 득점자 수 변경: $beforeCount → $afterCount',
         name: 'MatchEditor');
-
-    _updateMatch.updateCurrentEditingMatch(state);
 
     // Update GoalScorersProvider with the newly parsed scorers
     ref.read(goalScorersProvider.notifier).resetToDefault(state.scorers);
@@ -316,7 +302,6 @@ class MatchEditorNotifier extends Notifier<Match> {
 
     try {
       state = state.copyWith(homeTeamName: name);
-      _updateMatch.updateHomeTeamName(name);
     } catch (e, stackTrace) {
       dev.log('홈팀 이름 업데이트 오류: $e', name: 'MatchEditor');
       dev.log('스택 트레이스: $stackTrace', name: 'MatchEditor');
@@ -332,7 +317,6 @@ class MatchEditorNotifier extends Notifier<Match> {
 
     try {
       state = state.copyWith(awayTeamName: name);
-      _updateMatch.updateAwayTeamName(name);
     } catch (e, stackTrace) {
       dev.log('원정팀 이름 업데이트 오류: $e', name: 'MatchEditor');
       dev.log('스택 트레이스: $stackTrace', name: 'MatchEditor');
@@ -346,14 +330,12 @@ class MatchEditorNotifier extends Notifier<Match> {
     if (isHomeTeam) {
       if (state.homeLogoPath == path) return;
       state = state.copyWith(homeLogoPath: path);
-      _updateMatch.updateHomeLogo(path);
       dev.log(
           '[MatchEditorNotifier] Home logo updated to: $path. Current state logo: ${state.homeLogoPath}',
           name: 'MatchEditor');
     } else {
       if (state.awayLogoPath == path) return;
       state = state.copyWith(awayLogoPath: path);
-      _updateMatch.updateAwayLogo(path);
       dev.log(
           '[MatchEditorNotifier] Away logo updated to: $path. Current state logo: ${state.awayLogoPath}',
           name: 'MatchEditor');
@@ -380,7 +362,6 @@ class MatchEditorNotifier extends Notifier<Match> {
         homeScore: score,
         clearHomeScore: score == null,
       );
-      _updateMatch.updateHomeScore(score);
     } catch (e, stackTrace) {
       dev.log('홈팀 점수 업데이트 오류: $e', name: 'MatchEditor');
       dev.log('스택 트레이스: $stackTrace', name: 'MatchEditor');
@@ -399,7 +380,6 @@ class MatchEditorNotifier extends Notifier<Match> {
         awayScore: score,
         clearAwayScore: score == null,
       );
-      _updateMatch.updateAwayScore(score);
     } catch (e, stackTrace) {
       dev.log('원정팀 점수 업데이트 오류: $e', name: 'MatchEditor');
       dev.log('스택 트레이스: $stackTrace', name: 'MatchEditor');
@@ -472,14 +452,10 @@ class MatchEditorNotifier extends Notifier<Match> {
     }
   }
 
-  /// 현재 편집 중인 매치 정보 업데이트
+  /// 현재 편집 중인 매치 정보 업데이트 (현재는 상태만 관리)
   void _updateCurrentEditingMatch() {
-    try {
-      _updateMatch.updateCurrentEditingMatch(state);
-    } catch (e, stackTrace) {
-      dev.log('현재 편집 중인 경기 업데이트 오류: $e', name: 'MatchEditor');
-      dev.log('스택 트레이스: $stackTrace', name: 'MatchEditor');
-    }
+    // 현재는 상태만 관리하고 별도 저장소에 저장하지 않음
+    dev.log('현재 편집 중인 경기 상태 업데이트됨', name: 'MatchEditor');
   }
 
   /// 경기 정보 저장
@@ -504,7 +480,6 @@ class MatchEditorNotifier extends Notifier<Match> {
       awayScore: currentTeamDetails.awayScore,
     );
 
-    _updateMatch.updateCurrentEditingMatch(state);
     dev.log('매치 저장 완료: $state', name: 'MatchEditor');
   }
 
@@ -527,7 +502,6 @@ class MatchEditorNotifier extends Notifier<Match> {
     state = defaultTemplate.copyWith();
 
     // _lastGoalScorersProcessed = null; // REMOVED
-    _updateMatch.updateCurrentEditingMatch(state);
 
     dev.log('MatchEditorNotifier: 상태가 빈 기본값으로 초기화되었습니다.', name: 'MatchEditor');
     dev.log('초기화된 Match 상태: $state', name: 'MatchEditor');
@@ -567,8 +541,7 @@ class MatchEditorNotifier extends Notifier<Match> {
     // GoalScorersNotifier 상태도 함께 업데이트
     ref.read(goalScorersProvider.notifier).resetToDefault(scorers);
 
-    // DB에 현재 상태 저장
-    _updateMatch.updateCurrentEditingMatch(state);
+    // 상태 업데이트 완료
     dev.log('득점자 목록 업데이트 완료 (updateScorers), 최종 득점자 수: ${state.scorers.length}',
         name: 'MatchEditor');
   }

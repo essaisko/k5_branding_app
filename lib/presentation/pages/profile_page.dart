@@ -8,6 +8,7 @@ import 'package:chukshin_app/domain/entities/post.dart';
 import 'package:chukshin_app/features/common/providers/post_provider.dart';
 import 'package:chukshin_app/features/common/pages/post_detail_page.dart';
 import 'package:chukshin_app/presentation/navigation/navigation_state.dart';
+import 'package:flutter/foundation.dart';
 
 /// 나의 정보 페이지
 class ProfilePage extends ConsumerStatefulWidget {
@@ -347,6 +348,54 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                     ],
                   ),
+
+                  // 개발자 메뉴 (디버그 모드에서만 표시)
+                  if (kDebugMode) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border:
+                            Border.all(color: Colors.orange.withOpacity(0.3)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              '개발자 메뉴',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: const Icon(Icons.bug_report),
+                            title: const Text('디버그 페이지'),
+                            onTap: () {
+                              Navigator.pushNamed(context, AppRoutes.debug);
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.data_object),
+                            title: const Text('데이터 구조 가이드'),
+                            onTap: () {
+                              Navigator.pushNamed(
+                                  context, AppRoutes.firebaseSetup);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ],
               ),
             ),

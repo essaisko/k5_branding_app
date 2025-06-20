@@ -1,0 +1,298 @@
+{
+  "timestamp": "2025-06-17T19:36:00.270Z",
+  "season": "2025",
+  "source": "joinkfa_real_parsed",
+  "matches": [
+    {
+      "id": "match_2025_3_0_team_007_team_002",
+      "homeTeam": "울산 현대 2군",
+      "awayTeam": "양산 유나이티드",
+      "homeScore": 3,
+      "awayScore": 1,
+      "matchDate": "2025-03-07",
+      "matchTime": "14:00",
+      "venue": "울산 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_3_1_team_001_team_002",
+      "homeTeam": "김해 재믹스 FC",
+      "awayTeam": "양산 유나이티드",
+      "homeScore": 0,
+      "awayScore": 3,
+      "matchDate": "2025-03-14",
+      "matchTime": "16:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_3_2_team_002_team_001",
+      "homeTeam": "양산 유나이티드",
+      "awayTeam": "김해 재믹스 FC",
+      "homeScore": 1,
+      "awayScore": 1,
+      "matchDate": "2025-03-21",
+      "matchTime": "19:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_3_3_team_003_team_001",
+      "homeTeam": "진주대성 FC",
+      "awayTeam": "김해 재믹스 FC",
+      "homeScore": 0,
+      "awayScore": 2,
+      "matchDate": "2025-03-28",
+      "matchTime": "14:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_4_0_team_003_team_001",
+      "homeTeam": "진주대성 FC",
+      "awayTeam": "김해 재믹스 FC",
+      "homeScore": 1,
+      "awayScore": 3,
+      "matchDate": "2025-04-07",
+      "matchTime": "14:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_4_1_team_008_team_006",
+      "homeTeam": "경남 FC 유스",
+      "awayTeam": "부산 FC 아카데미",
+      "homeScore": 1,
+      "awayScore": 0,
+      "matchDate": "2025-04-14",
+      "matchTime": "16:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_4_2_team_004_team_007",
+      "homeTeam": "원터치 FC",
+      "awayTeam": "울산 현대 2군",
+      "homeScore": 2,
+      "awayScore": 3,
+      "matchDate": "2025-04-21",
+      "matchTime": "19:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_4_3_team_004_team_006",
+      "homeTeam": "원터치 FC",
+      "awayTeam": "부산 FC 아카데미",
+      "homeScore": 1,
+      "awayScore": 0,
+      "matchDate": "2025-04-28",
+      "matchTime": "14:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_5_0_team_007_team_004",
+      "homeTeam": "울산 현대 2군",
+      "awayTeam": "원터치 FC",
+      "homeScore": 1,
+      "awayScore": 1,
+      "matchDate": "2025-05-07",
+      "matchTime": "14:00",
+      "venue": "울산 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_5_1_team_004_team_003",
+      "homeTeam": "원터치 FC",
+      "awayTeam": "진주대성 FC",
+      "homeScore": 2,
+      "awayScore": 3,
+      "matchDate": "2025-05-14",
+      "matchTime": "16:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_5_2_team_006_team_005",
+      "homeTeam": "부산 FC 아카데미",
+      "awayTeam": "플러즈 FC",
+      "homeScore": 0,
+      "awayScore": 0,
+      "matchDate": "2025-05-21",
+      "matchTime": "19:00",
+      "venue": "부산 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_5_3_team_002_team_007",
+      "homeTeam": "양산 유나이티드",
+      "awayTeam": "울산 현대 2군",
+      "homeScore": 2,
+      "awayScore": 0,
+      "matchDate": "2025-05-28",
+      "matchTime": "14:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_6_0_team_001_team_003",
+      "homeTeam": "김해 재믹스 FC",
+      "awayTeam": "진주대성 FC",
+      "homeScore": 0,
+      "awayScore": 1,
+      "matchDate": "2025-06-07",
+      "matchTime": "14:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_6_1_team_002_team_006",
+      "homeTeam": "양산 유나이티드",
+      "awayTeam": "부산 FC 아카데미",
+      "homeScore": 2,
+      "awayScore": 0,
+      "matchDate": "2025-06-14",
+      "matchTime": "16:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "completed",
+      "season": "2025"
+    }
+  ],
+  "schedules": [
+    {
+      "id": "match_2025_6_2_team_004_team_008",
+      "homeTeam": "원터치 FC",
+      "awayTeam": "경남 FC 유스",
+      "matchDate": "2025-06-21",
+      "matchTime": "19:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "scheduled",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_6_3_team_004_team_001",
+      "homeTeam": "원터치 FC",
+      "awayTeam": "김해 재믹스 FC",
+      "matchDate": "2025-06-28",
+      "matchTime": "14:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "scheduled",
+      "season": "2025"
+    },
+    {
+      "id": "match_2025_7_0_team_002_team_003",
+      "homeTeam": "양산 유나이티드",
+      "awayTeam": "진주대성 FC",
+      "matchDate": "2025-07-07",
+      "matchTime": "14:00",
+      "venue": "경남 축구장",
+      "league": "K5",
+      "status": "scheduled",
+      "season": "2025"
+    }
+  ],
+  "teams": [
+    {
+      "id": "team_001",
+      "name": "김해 재믹스 FC",
+      "region": "경남",
+      "league": "K5",
+      "logo": "kimhae_jaemics_fc_logo.png"
+    },
+    {
+      "id": "team_002",
+      "name": "양산 유나이티드",
+      "region": "경남",
+      "league": "K5",
+      "logo": "yangsan_united_logo.png"
+    },
+    {
+      "id": "team_003",
+      "name": "진주대성 FC",
+      "region": "경남",
+      "league": "K5",
+      "logo": "jinjudaesung_logo.png"
+    },
+    {
+      "id": "team_004",
+      "name": "원터치 FC",
+      "region": "경남",
+      "league": "K5",
+      "logo": "one_touch_fc_logo.png"
+    },
+    {
+      "id": "team_005",
+      "name": "플러즈 FC",
+      "region": "경남",
+      "league": "K5",
+      "logo": "pluzz_fc_logo.png"
+    },
+    {
+      "id": "team_006",
+      "name": "부산 FC 아카데미",
+      "region": "부산",
+      "league": "K5",
+      "logo": "default_crest.png"
+    },
+    {
+      "id": "team_007",
+      "name": "울산 현대 2군",
+      "region": "울산",
+      "league": "K5",
+      "logo": "default_crest.png"
+    },
+    {
+      "id": "team_008",
+      "name": "경남 FC 유스",
+      "region": "경남",
+      "league": "K5",
+      "logo": "default_crest.png"
+    }
+  ],
+  "leagues": [
+    {
+      "id": "k5_gyeongnam",
+      "name": "K5리그 경남권",
+      "region": "경남",
+      "season": "2025",
+      "teams": 6
+    },
+    {
+      "id": "k5_busan",
+      "name": "K5리그 부산권",
+      "region": "부산",
+      "season": "2025",
+      "teams": 1
+    }
+  ]
+}

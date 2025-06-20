@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:chukshin_app/core/theme/app_theme.dart';
 import 'package:chukshin_app/presentation/navigation/routes.dart';
 import 'package:chukshin_app/features/authentication/presentation/providers/auth_provider.dart';
 
@@ -46,7 +45,6 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage>
   String? _selectedResidenceArea;
   List<String> _selectedAffiliatedTeams = [];
   String? _selectedPosition;
-  Position? _currentPosition;
   bool _isLocationLoading = false;
 
   late AnimationController _fadeController;
@@ -158,8 +156,6 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage>
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-
-      _currentPosition = position;
 
       // 좌표를 주소로 변환
       List<Placemark> placemarks = await placemarkFromCoordinates(
@@ -428,7 +424,6 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authState = ref.watch(authProvider);
 
     return Scaffold(
       body: Container(

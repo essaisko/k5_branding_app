@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:chukshin_app/core/theme/app_theme.dart';
 import 'package:chukshin_app/core/constants/asset_paths.dart';
 import 'package:chukshin_app/presentation/navigation/routes.dart';
 import 'package:chukshin_app/features/authentication/presentation/providers/auth_provider.dart';
@@ -232,7 +231,6 @@ class _OpeningPageState extends ConsumerState<OpeningPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Container(

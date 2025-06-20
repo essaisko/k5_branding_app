@@ -4,13 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:gal/gal.dart';
 import 'package:dio/dio.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'dart:typed_data';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:chukshin_app/domain/entities/post.dart';
-import 'package:chukshin_app/features/common/providers/post_provider.dart';
 import 'package:chukshin_app/features/common/providers/comment_provider.dart';
 import 'package:chukshin_app/features/authentication/presentation/providers/auth_provider.dart';
 import 'package:chukshin_app/presentation/navigation/navigation_state.dart';
